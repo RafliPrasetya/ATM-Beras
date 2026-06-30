@@ -1,0 +1,134 @@
+/* LOGIN PAGE */
+
+.login-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* LEFT */
+
+.login-left {
+    width: 50%;
+    background: #3d3f63;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.branding {
+    text-align: center;
+    color: white;
+}
+
+.atm-icon {
+    width: 150px;
+    margin-bottom: 20px;
+}
+
+.branding h1 {
+    font-size: 25px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.partner-logo {
+    margin-top: 25px;
+
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.partner-logo img {
+    height: 50px;
+}
+
+/* RIGHT */
+
+.login-right {
+    width: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: white;
+}
+
+.login-card {
+    width: 450px;
+
+    border: 1px solid #d9d9d9;
+    border-radius: 16px;
+
+    padding: 35px;
+}
+
+.login-card h2 {
+    text-align: center;
+
+    font-weight: 700;
+
+    color: #2f365f;
+
+    margin-bottom: 20px;
+}
+
+.custom-input {
+    height: 58px;
+    width: 380px;
+
+    border-radius: 12px;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+
+    right: 18px;
+    top: 18px;
+
+    cursor: pointer;
+
+    color: #888;
+}
+
+.btn-login {
+    width: 100%;
+    height: 52px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #3d3f63;
+    color: white;
+
+    font-weight: 600;
+
+    transition: all .3s ease;
+    box-shadow: 0 4px 12px rgba(61, 63, 99, .25);
+}
+
+.btn-login:hover {
+    background: #2f3150;
+    /* transform: translateY(-2px); */
+
+    box-shadow: 0 8px 20px rgba(61, 63, 99, .35);
+
+}
+
+.btn-login:disabled {
+    opacity: .9;
+    cursor: not-allowed;
+}
+
+#btnLoading,
+#btnSuccess {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
