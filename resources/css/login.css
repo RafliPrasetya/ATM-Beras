@@ -77,7 +77,7 @@
 
 .custom-input {
     height: 58px;
-    width: 380px;
+    width: 100%;
 
     border-radius: 12px;
 }
@@ -131,4 +131,49 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+    .login-wrapper {
+        flex-direction: column;
+    }
+    
+    .login-left {
+        width: 100%;
+        min-height: 35vh;
+        padding: 40px 20px;
+    }
+    
+    .branding .atm-icon {
+        width: 100px;
+        margin-bottom: 15px;
+    }
+    
+    .branding h1 {
+        font-size: 20px;
+    }
+    
+    .partner-logo {
+        margin-top: 15px;
+    }
+    
+    .partner-logo img {
+        height: 40px;
+    }
+    
+    .login-right {
+        width: 100%;
+        min-height: 65vh;
+        padding: 30px 20px;
+        align-items: flex-start;
+    }
+    
+    .login-card {
+        width: 100%;
+        max-width: 400px;
+        border: none;
+        padding: 0;
+        box-shadow: none;
+    }
 }
