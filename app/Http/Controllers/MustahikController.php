@@ -5,35 +5,66 @@ namespace App\Http\Controllers;
 use App\Models\Mustahik;
 use App\Models\Province;
 use App\Models\Transaction;
-use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class MustahikController extends Controller
 {
+    public function active()
+    {
+        return $this->renderIndex(true);
+    }
+
     public function index()
     {
+        return $this->renderIndex(false);
+    }
+
+    private function renderIndex(bool $activeOnly)
+    {
         $mustahiks = Mustahik::with([
-            'village.district.regency.province'
-        ])
+            'village.district.regency.province',
+            'transactions.machine',
+        ]);
+
+        if ($activeOnly) {
+            $mustahiks->where('status', 'aktif');
+        }
+
+        $mustahiks = $mustahiks
             ->latest()
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
         $transactions = Transaction::with([
             'mustahik',
-            'machine'
+            'machine',
         ])
             ->latest('tanggal_pengambilan')
             ->get();
 
         $provinces = Province::all();
 
+        $mustahikStats = [
+            'total' => Mustahik::count(),
+            'aktif' => Mustahik::where('status', 'aktif')->count(),
+            'nonaktif' => Mustahik::where('status', 'nonaktif')->count(),
+        ];
+
+        $pageTitle = $activeOnly
+            ? 'Daftar Mustahik Aktif'
+            : 'Daftar Mustahik';
+
         return view(
             'admin.mustahik.index',
             compact(
                 'mustahiks',
                 'provinces',
-                'transactions'
+                'transactions',
+                'mustahikStats',
+                'activeOnly',
+                'pageTitle'
             )
         );
     }
@@ -47,7 +78,7 @@ class MustahikController extends Controller
             'no_hp' => 'nullable',
             'alamat' => 'required',
             'village_id' => 'required',
-            'jatah_beras_gram' => 'required|integer|min:1'
+            'jatah_beras_gram' => 'required|integer|min:1',
         ]);
 
         Mustahik::create([
@@ -58,6 +89,7 @@ class MustahikController extends Controller
             'alamat' => $request->alamat,
             'village_id' => $request->village_id,
             'jatah_beras_gram' => $request->jatah_beras_gram,
+            'status' => 'aktif',
         ]);
 
         return back()->with(
@@ -74,8 +106,7 @@ class MustahikController extends Controller
 
             'nama' => 'required',
 
-            'rfid_uid' =>
-            'required|unique:mustahiks,rfid_uid,' .
+            'rfid_uid' => 'required|unique:mustahiks,rfid_uid,'.
                 $mustahik->id,
 
             'nik' => 'required',
@@ -119,13 +150,35 @@ class MustahikController extends Controller
         );
     }
 
+    public function updateStatus(
+        Request $request,
+        Mustahik $mustahik
+    ) {
+        $request->validate([
+            'status' => 'required|in:aktif,nonaktif',
+        ]);
+
+        $mustahik->update([
+            'status' => $request->status,
+        ]);
+
+        $message = $request->status === 'aktif'
+            ? 'Mustahik berhasil diaktifkan'
+            : 'Mustahik berhasil dinonaktifkan';
+
+        return back()->with(
+            'success',
+            $message
+        );
+    }
+
     public function tambahJatah(
         Request $request,
         Mustahik $mustahik
     ) {
 
         $request->validate([
-            'jumlah' => 'required|numeric|min:1'
+            'jumlah' => 'required|numeric|min:1',
         ]);
 
         $mustahik->increment(
@@ -147,8 +200,7 @@ class MustahikController extends Controller
 
         $transactions =
             $mustahik->transactions()
-            ->with('machine');
-
+                ->with('machine');
 
         if ($filter == 7) {
 
@@ -175,10 +227,10 @@ class MustahikController extends Controller
 
         $transactions =
             $transactions
-            ->latest(
-                'tanggal_pengambilan'
-            )
-            ->get();
+                ->latest(
+                    'tanggal_pengambilan'
+                )
+                ->get();
 
         $pdf = Pdf::loadView(
             'admin.mustahik.pdf-riwayat',
@@ -190,8 +242,8 @@ class MustahikController extends Controller
         );
 
         return $pdf->download(
-            'Riwayat_' .
-                $mustahik->nama .
+            'Riwayat_'.
+                $mustahik->nama.
                 '.pdf'
         );
     }
@@ -209,7 +261,7 @@ class MustahikController extends Controller
         $transactions =
             Transaction::with([
                 'mustahik',
-                'machine'
+                'machine',
             ]);
 
         if ($tanggalAwal) {
@@ -232,10 +284,10 @@ class MustahikController extends Controller
 
         $transactions =
             $transactions
-            ->latest(
-                'tanggal_pengambilan'
-            )
-            ->get();
+                ->latest(
+                    'tanggal_pengambilan'
+                )
+                ->get();
 
         $totalTransaksi =
             $transactions->count();

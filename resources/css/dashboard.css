@@ -4,8 +4,14 @@
     box-sizing: border-box;
 }
 
-body {
+html, body {
+    min-height: 100vh;
     background: #E3F2FD;
+    overflow-x: hidden;
+    width: 100vw;
+}
+
+body {
     font-family: "Segoe UI", sans-serif;
 }
 
@@ -18,6 +24,7 @@ body {
 .app-wrapper {
     display: flex;
     margin-top: 80px;
+    min-height: calc(100vh - 80px);
 }
 
 /* SIDEBAR */
@@ -169,6 +176,7 @@ body {
     flex: 1;
     min-height: calc(100vh - 80px);
     padding: 25px;
+    min-width: 0;
 }
 
 
@@ -473,6 +481,111 @@ body {
     border-radius: 18px;
     padding: 25px;
     border: 1px solid #dbe4ee;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.admin-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+}
+
+.admin-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 260px;
+}
+
+.admin-page-title {
+    margin: 0;
+    color: #111827;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.admin-page-subtitle {
+    margin: -6px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.admin-summary {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.summary-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 7px 11px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #f8fafc;
+    color: #4b5563;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.summary-pill strong {
+    color: #111827;
+    font-size: 14px;
+}
+
+.admin-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.btn-icon {
+    width: 42px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.table-thumb {
+    width: 64px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+    background: #f8fafc;
+}
+
+.table-thumb-placeholder {
+    width: 64px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #f8fafc;
+    color: #9ca3af;
+}
+
+.table-empty {
+    padding: 28px 16px;
+    color: #6b7280;
+    text-align: center;
 }
 
 /* =========================
@@ -515,6 +628,8 @@ body {
 
 .btn-tambah {
     min-width: 120px;
+    min-height: 38px;
+    gap: 6px;
 
     border-radius: 8px;
 
@@ -542,24 +657,55 @@ body {
    TABLE
 ========================= */
 
+.table-responsive {
+    border: 1px solid #edf0f4;
+    border-radius: 14px;
+}
+
 .mesin-table {
     vertical-align: middle;
+    margin-bottom: 0;
 }
 
 .mesin-table th {
     font-weight: 600;
     color: #4b5563;
     font-size: 14px;
+    background: #f8fafc;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.mesin-table thead th {
+    white-space: nowrap;
 }
 
 .mesin-table td {
     font-size: 14px;
     color: #374151;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.mesin-table tbody tr:hover {
+    background: #f9fafb;
 }
 
 /* =========================
    BADGE
 ========================= */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 88px;
+    justify-content: center;
+}
+
+.status-badge i {
+    font-size: 8px;
+}
 
 .badge-on {
     background: #dcfce7;
@@ -618,4 +764,130 @@ body {
 .btn-delete {
     background: #ef4444;
     color: white;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (MOBILE & TABLET)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    .app-wrapper {
+        position: relative;
+    }
+
+    /* Sidebar slides in as drawer overlay */
+    .sidebar {
+        position: fixed;
+        top: 80px;
+        left: 0;
+        bottom: 0;
+        z-index: 1040;
+        width: 250px;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: none;
+        min-height: auto;
+    }
+
+    body.sidebar-open .sidebar {
+        transform: translateX(0);
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Sidebar backdrop overlay */
+    body.sidebar-open::after {
+        content: '';
+        position: fixed;
+        top: 80px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1030;
+        backdrop-filter: blur(2px);
+        transition: opacity 0.3s ease;
+    }
+
+    /* Main Content occupies full width */
+    .main-content {
+        padding: 15px;
+        width: 100%;
+        min-width: 0;
+    }
+
+    /* Page Card Padding reduction */
+    .page-card {
+        padding: 15px;
+    }
+
+    /* Welcome Card responsive adjust */
+    .welcome-card {
+        height: auto;
+        min-height: 100px;
+        padding: 20px;
+        flex-direction: row;
+        gap: 15px;
+    }
+    
+    .welcome-card img {
+        height: 55px;
+    }
+    
+    .welcome-card h2 {
+        font-size: 20px;
+    }
+
+    .welcome-subtitle {
+        font-size: 13px;
+    }
+
+    /* Stats Grid Adjustment */
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    /* Header & Actions responsive */
+    .admin-page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .admin-actions, .mustahik-actions {
+        justify-content: flex-start;
+        width: 100%;
+        gap: 8px;
+    }
+    
+    .view-switcher {
+        width: 100%;
+    }
+    
+    .view-switcher .btn {
+        flex: 1;
+        font-size: 13px;
+    }
+
+    .admin-actions .btn, .mustahik-actions .btn {
+        font-size: 13px;
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Stats Grid to single column on small phones */
+    .stats {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Hide welcome card image on tiny screens */
+    .welcome-card img {
+        display: none;
+    }
 }

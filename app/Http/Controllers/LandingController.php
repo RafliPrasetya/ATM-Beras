@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Machine;
 use App\Models\Mustahik;
 use App\Models\News;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class LandingController extends Controller
@@ -45,18 +44,17 @@ class LandingController extends Controller
         $pickupMachine = null;
         $recentTransactions = collect();
 
-        if ($mustahik) {
-            $now = now();
-
+        if ($mustahik && $mustahik->status === 'aktif') {
             $pickupMachine = Machine::with('village.district.regency.province')
                 ->whereRaw('LOWER(TRIM(status_mesin)) = ?', ['aktif'])
-                ->whereNotNull('jadwal_mulai')
-                ->whereNotNull('jadwal_selesai')
-                ->where('jadwal_mulai', '<=', $now)
-                ->where('jadwal_selesai', '>=', $now)
+                ->jadwalAktif()
                 ->orderBy('jadwal_mulai', 'asc')
                 ->first();
 
+            $recentTransactions = $mustahik->transactions
+                ->sortByDesc('tanggal_pengambilan')
+                ->take(3);
+        } elseif ($mustahik) {
             $recentTransactions = $mustahik->transactions
                 ->sortByDesc('tanggal_pengambilan')
                 ->take(3);

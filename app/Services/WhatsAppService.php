@@ -72,4 +72,23 @@ class WhatsAppService
             ];
         }
     }
+
+    private function formatPhoneNumber($number)
+    {
+        if (!$number) {
+            return null;
+        }
+
+        $number = preg_replace('/[^0-9]/', '', $number);
+
+        if (str_starts_with($number, '0')) {
+            $number = '62' . substr($number, 1);
+        }
+
+        if (!str_starts_with($number, '62')) {
+            return null;
+        }
+
+        return $number;
+    }
 }

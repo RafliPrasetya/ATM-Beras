@@ -443,15 +443,19 @@
             $mustahikAddress = $mustahikResult->alamat ?? '-';
             $mustahikVillageName = $mustahikResult->village?->name ?? '-';
             $mustahikDistrictName = $mustahikResult->village?->district?->name ?? '-';
+            $mustahikIsActive = $mustahikResult->status === 'aktif';
 
             // Jadwal mesin
-            $scheduleText = $pickupMachine
-                ? \Carbon\Carbon::parse($pickupMachine->jadwal_mulai)->format('d M Y H:i') .
-                    ' - ' .
-                    \Carbon\Carbon::parse($pickupMachine->jadwal_selesai)->format('d M Y H:i')
-                : 'Belum ada jadwal aktif';
+            $scheduleText = !$mustahikIsActive
+                ? 'Mustahik nonaktif, tidak dapat melakukan transaksi di ATM Beras'
+                : ($pickupMachine
+                    ? \Carbon\Carbon::parse($pickupMachine->jadwal_mulai)->format('d M Y H:i') .
+                        ' - ' .
+                        \Carbon\Carbon::parse($pickupMachine->jadwal_selesai)->format('d M Y H:i')
+                    : 'Belum ada jadwal aktif');
 
             $machineIsActive = $pickupMachine !== null;
+            $trackingIsAvailable = $mustahikIsActive && $machineIsActive;
         @endphp
 
         <div class="modal fade tracking-modal" id="trackingResultModal" tabindex="-1" aria-hidden="true">
@@ -470,17 +474,25 @@
                                     {{ $mustahikResult->nama }}
                                 </h3>
 
-                                <p>
-                                    Sisa Jatah:
-                                    {{ number_format($mustahikResult->jatah_beras_gram) }}
-                                    gram
+                                 <p>
+                                    @if ($mustahikIsActive)
+                                        Sisa Jatah:
+                                        {{ number_format($mustahikResult->jatah_beras_gram) }}
+                                        gram
+                                    @else
+                                        Status penerima tidak aktif
+                                    @endif
                                 </p>
                             </div>
                         </div>
 
                         <div class="tracking-header-action">
-                            <span class="tracking-status {{ $machineIsActive ? 'status-active' : 'status-inactive' }}">
-                                {{ $machineIsActive ? 'Aktif' : 'Belum Terjadwal' }}
+                            <span class="tracking-status {{ $trackingIsAvailable ? 'status-active' : 'status-inactive' }}">
+                                @if (!$mustahikIsActive)
+                                    Mustahik Nonaktif
+                                @else
+                                    {{ $machineIsActive ? 'Aktif' : 'Belum Terjadwal' }}
+                                @endif
                             </span>
 
                             <button type="button" class="tracking-close" data-bs-dismiss="modal">
@@ -491,6 +503,18 @@
                     </div>
 
                     <div class="tracking-modal-body">
+
+                        @unless ($mustahikIsActive)
+                            <div class="tracking-warning-card">
+                                <strong>
+                                    Mustahik ini sedang nonaktif.
+                                </strong>
+                                <span>
+                                    Data masih terdaftar, tetapi tidak dapat melakukan transaksi pengambilan beras di ATM
+                                    Beras sampai statusnya diaktifkan kembali oleh admin.
+                                </span>
+                            </div>
+                        @endunless
 
                         <div class="tracking-section">
                             <h5>

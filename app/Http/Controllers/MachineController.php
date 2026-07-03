@@ -2,20 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\District;
 use App\Models\Machine;
+use App\Models\Mustahik;
 use App\Models\Province;
 use App\Models\Regency;
-use App\Models\District;
 use App\Models\Village;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class MachineController extends Controller
 {
     public function index()
     {
         $machines = Machine::with([
-            'village.district.regency.province'
-        ])->latest()->get();
+            'village.district.regency.province',
+        ])->latest()->paginate(10);
 
         $provinces = Province::orderBy('name')->get();
 
@@ -46,8 +49,6 @@ class MachineController extends Controller
 
             'jadwal_mulai' => null,
             'jadwal_selesai' => null,
-
-            'status_penjadwalan' => 'nonaktif'
         ]);
 
         return redirect()
@@ -61,8 +62,7 @@ class MachineController extends Controller
     ) {
 
         $request->validate([
-            'machine_code' =>
-            'required|unique:machines,machine_code,' . $machine->id,
+            'machine_code' => 'required|unique:machines,machine_code,'.$machine->id,
 
             'village_id' => 'required',
             'lokasi_penempatan' => 'required',
@@ -91,6 +91,7 @@ class MachineController extends Controller
         return back()
             ->with('success', 'Mesin berhasil dihapus');
     }
+
     public function getRegencies($provinceId)
     {
         return Regency::where(
@@ -114,13 +115,13 @@ class MachineController extends Controller
             $districtId
         )->orderBy('name')->get();
     }
+
     public function toggleStatus(Machine $machine)
     {
         $machine->update([
-            'status_mesin' =>
-            $machine->status_mesin === 'aktif'
+            'status_mesin' => $machine->status_mesin === 'aktif'
                 ? 'nonaktif'
-                : 'aktif'
+                : 'aktif',
         ]);
 
         return back()->with(
@@ -133,29 +134,21 @@ class MachineController extends Controller
         Request $request,
         Machine $machine
     ) {
-
         $request->validate([
-
             'jadwal_mulai' => 'required|date',
-
-            'jadwal_selesai' =>
-            'required|date|after:jadwal_mulai'
-
+            'jadwal_selesai' => 'required|date|after:jadwal_mulai',
         ]);
 
         $machine->update([
-
-            'jadwal_mulai' =>
-            $request->jadwal_mulai,
-
-            'jadwal_selesai' =>
-            $request->jadwal_selesai,
-
+            'jadwal_mulai' => $request->jadwal_mulai,
+            'jadwal_selesai' => $request->jadwal_selesai,
+            'is_wa_sent' => false,
         ]);
 
         return back()->with(
             'success',
-            'Jadwal mesin berhasil diperbarui'
+            'Jadwal berhasil diperbarui. Notifikasi WhatsApp akan dikirim otomatis saat jadwal aktif.'
         );
     }
 }
+

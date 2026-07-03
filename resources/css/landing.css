@@ -970,6 +970,39 @@ body {
     font-weight: 800;
 }
 
+.tracking-status.status-active {
+    background: #e8f3df;
+    color: #267a34;
+}
+
+.tracking-status.status-inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.tracking-warning-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 24px;
+    padding: 16px 18px;
+    border: 1px solid #fed7aa;
+    border-radius: 16px;
+    background: #fff7ed;
+}
+
+.tracking-warning-card strong {
+    color: #9a3412;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.tracking-warning-card span {
+    color: #7c2d12;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
 .tracking-close {
     width: 38px;
     height: 38px;

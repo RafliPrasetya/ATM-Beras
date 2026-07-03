@@ -13,7 +13,8 @@ class Mustahik extends Model
         'no_hp',
         'alamat',
         'village_id',
-        'jatah_beras_gram'
+        'jatah_beras_gram',
+        'status',
     ];
 
     public function village()
@@ -22,6 +23,7 @@ class Mustahik extends Model
             Village::class
         );
     }
+
     public function transactions()
     {
         return $this->hasMany(

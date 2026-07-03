@@ -1,13 +1,13 @@
 <?php
 
-use App\Services\WhatsAppService;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\MachineController;
 use App\Http\Controllers\MustahikController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\LandingController;
 use App\Http\Controllers\NewsController;
+use App\Services\WhatsAppService;
 // use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,17 +23,17 @@ Route::get(
 
 Route::get('/login', [
     AuthController::class,
-    'loginForm'
+    'loginForm',
 ]);
 
 Route::post('/login', [
     AuthController::class,
-    'login'
+    'login',
 ]);
 
 Route::get('/logout', [
     AuthController::class,
-    'logout'
+    'logout',
 ])->name('logout');
 
 Route::get('/test-wa', function (WhatsAppService $wa) {
@@ -57,43 +57,52 @@ Route::middleware('admin')->group(function () {
         return view('admin.dashboard');
     })->name('dashboard');
 
+    Route::get('/check-wa-notification', function () {
+        if (\Illuminate\Support\Facades\Cache::has('wa_notification_result')) {
+            $result = \Illuminate\Support\Facades\Cache::get('wa_notification_result');
+            \Illuminate\Support\Facades\Cache::forget('wa_notification_result');
+            return response()->json($result);
+        }
+        return response()->json(null);
+    })->name('check-wa-notification');
+
     Route::get('/mesin', [
         MachineController::class,
-        'index'
+        'index',
     ])->name('mesin.index');
 
     Route::post('/mesin', [
         MachineController::class,
-        'store'
+        'store',
     ])->name('mesin.store');
 
     Route::put('/mesin/{machine}', [
         MachineController::class,
-        'update'
+        'update',
     ])->name('mesin.update');
 
     Route::delete('/mesin/{machine}', [
         MachineController::class,
-        'destroy'
+        'destroy',
     ])->name('mesin.destroy');
 
     Route::get('/regencies/{province}', [
         MachineController::class,
-        'getRegencies'
+        'getRegencies',
     ]);
 
     Route::get('/districts/{regency}', [
         MachineController::class,
-        'getDistricts'
+        'getDistricts',
     ]);
 
     Route::get('/villages/{district}', [
         MachineController::class,
-        'getVillages'
+        'getVillages',
     ]);
     Route::patch('/mesin/{machine}/toggle-status', [
         MachineController::class,
-        'toggleStatus'
+        'toggleStatus',
     ])->name('mesin.toggle-status');
 
     Route::patch(
@@ -102,19 +111,23 @@ Route::middleware('admin')->group(function () {
     )->name('mesin.update-jadwal');
 
     Route::get(
-        '/mustahik',
-        [MustahikController::class, 'index']
-    )->name('mustahik.index');
+        '/mustahik-aktif',
+        [MustahikController::class, 'active']
+    )->name('mustahik.active');
 
     Route::resource(
         'mustahik',
         MustahikController::class
-    );
+    )->except([
+        'create',
+        'show',
+        'edit',
+    ]);
 
-    Route::put(
-        '/mustahik/{mustahik}',
-        [MustahikController::class, 'update']
-    )->name('mustahik.update');
+    Route::patch(
+        '/mustahik/{mustahik}/status',
+        [MustahikController::class, 'updateStatus']
+    )->name('mustahik.update-status');
 
     Route::post(
         '/mustahik/{mustahik}/tambah-jatah',

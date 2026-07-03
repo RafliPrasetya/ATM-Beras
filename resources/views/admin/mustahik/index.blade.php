@@ -1,18 +1,17 @@
 @extends('layouts.admin')
 
 @section('content')
-    <style>
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 25px;
-        }
+    @php
+        $activeOnly = $activeOnly ?? false;
+        $pageTitle = $pageTitle ?? 'Daftar Mustahik';
+        $mustahikStats = $mustahikStats ?? [
+            'total' => $mustahiks->total(),
+            'aktif' => $mustahiks->total(),
+            'nonaktif' => 0,
+        ];
+    @endphp
 
-        .page-title {
-            margin: 0;
-            font-weight: 700;
-        }
+    <style>
 
         .search-wrapper {
             position: relative;
@@ -56,26 +55,29 @@
         }
 
         /* =========================
-                                                                                                                        MODAL RIWAYAT MUSTAHIK
-                                                                                                                       ========================= */
+           MODAL RIWAYAT MUSTAHIK
+           ========================= */
 
         .modal-riwayat .modal-content {
             border: none;
-            border-radius: 20px;
+            border-radius: 24px;
             overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
 
         .modal-riwayat .modal-body {
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
             background: #f8fafc;
+            padding: 30px !important;
         }
 
         .riwayat-wrapper {
             background: #fff;
-            border: 1px solid #dbe3ea;
+            border: 1px solid #edf0f4;
             border-radius: 20px;
-            padding: 25px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
         }
 
         .riwayat-header {
@@ -83,91 +85,179 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 25px;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #edf0f4;
+        }
+
+        .riwayat-header h5 {
+            color: #111827;
+            font-size: 1.25rem;
         }
 
         .riwayat-filter {
+            background: #f8fafc;
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid #edf0f4;
             display: flex;
-            gap: 10px;
+            gap: 5px;
             flex-wrap: wrap;
         }
 
         .riwayat-filter .btn {
-            min-width: 90px;
-            border-radius: 12px;
+            border-radius: 8px !important;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 8px 16px;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .riwayat-filter .btn-outline-secondary {
+            color: #6b7280;
+            background: transparent;
+        }
+
+        .riwayat-filter .btn-outline-secondary:hover {
+            color: #111827;
+            background: #e5e7eb;
+        }
+
+        .riwayat-filter .btn-dark, .riwayat-filter .active-filter {
+            background: #111827 !important;
+            color: #fff !important;
+            box-shadow: 0 2px 4px rgba(17, 24, 39, 0.2);
+        }
+
+        .download-btn {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px !important;
+            background: #fff !important;
+            border: 1px solid #edf0f4 !important;
+            color: #4b5563 !important;
+        }
+
+        .download-btn:hover {
+            background: #f3f4f6 !important;
+            color: #111827 !important;
         }
 
         .info-card {
-            background: #f8fafc;
-            border: 1px solid #e5e7eb;
-            border-radius: 15px;
-            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #edf0f4;
+            border-radius: 16px;
+            padding: 24px;
             height: 100%;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .info-card p {
+            margin-bottom: 1.25rem !important;
+            border-bottom: 1px dashed #edf0f4;
+            padding-bottom: 0.75rem;
+        }
+
+        .info-card p:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0 !important;
         }
 
         .info-card small {
-            color: #6c757d;
+            color: #6b7280;
             display: block;
-            margin-bottom: 3px;
+            margin-bottom: 6px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
         }
 
         .info-card strong {
-            color: #000000;
+            color: #111827;
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1px solid #bfdbfe;
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .summary-box small {
+            color: #3b82f6 !important;
+            font-size: 0.75rem !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 8px !important;
+        }
+
+        .summary-box h4 {
+            margin: 0;
+            color: #1d4ed8;
+            font-weight: 800;
+            font-size: 1.5rem;
         }
 
         .riwayat-table {
-            border-radius: 15px;
+            border: 1px solid #edf0f4;
+            border-radius: 14px;
             overflow: hidden;
-        }
-
-        .riwayat-table thead {
-            background: #f1f5f9;
+            margin-bottom: 0;
+            width: 100%;
         }
 
         .riwayat-table thead th {
+            background: #f8fafc;
+            padding: 16px;
+            white-space: nowrap;
             font-weight: 600;
             border: none;
-            padding: 14px;
+            color: #4b5563;
+            font-size: 0.9rem;
         }
 
         .riwayat-table tbody td {
-            padding: 14px;
+            padding: 16px;
             vertical-align: middle;
+            border-bottom: 1px solid #edf0f4;
+            color: #111827;
+            font-size: 0.95rem;
+        }
+
+        .riwayat-table tbody tr:last-child td {
+            border-bottom: none;
         }
 
         .riwayat-table tbody tr:hover {
-            background: #f8fafc;
+            background: #f9fafb;
         }
 
         .badge-jumlah {
             background: #dcfce7;
             color: #166534;
-            padding: 8px 14px;
-            border-radius: 30px;
+            padding: 6px 12px;
+            border-radius: 8px;
             font-weight: 600;
-        }
-
-        .download-btn {
-            width: 42px;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-        }
-
-        .summary-box {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 15px;
-            padding: 15px;
-        }
-
-        .summary-box h4 {
-            margin: 0;
-            color: #2563eb;
-            font-weight: 700;
+            font-size: 0.85rem;
+            display: inline-block;
         }
 
         .filter-btn {
@@ -226,6 +316,126 @@
             color: #fff;
         }
 
+
+        .mustahik-summary {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .summary-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 34px;
+            padding: 7px 11px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #f8fafc;
+            color: #4b5563;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .summary-pill strong {
+            color: #111827;
+            font-size: 14px;
+        }
+
+        .mustahik-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .view-switcher {
+            display: inline-flex;
+            gap: 6px;
+            padding: 4px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+
+        .view-switcher .btn {
+            min-height: 36px;
+            border: 0;
+            border-radius: 8px;
+            color: #4b5563;
+            font-weight: 600;
+        }
+
+        .view-switcher .active {
+            background: #343454;
+            color: #fff;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 88px;
+            justify-content: center;
+        }
+
+        .status-badge i {
+            font-size: 8px;
+        }
+
+        .table-responsive {
+            border: 1px solid #edf0f4;
+            border-radius: 14px;
+            max-height: 60vh;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .mesin-table {
+            margin-bottom: 0;
+        }
+
+        .mesin-table thead th {
+            background: #f8fafc;
+            padding-top: 14px;
+            padding-bottom: 14px;
+            white-space: nowrap;
+        }
+
+        .mesin-table tbody td {
+            padding-top: 14px;
+            padding-bottom: 14px;
+        }
+
+        .mesin-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .btn-icon {
+            width: 42px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .mustahik-actions {
+                justify-content: flex-start;
+                width: 100%;
+            }
+
+            .view-switcher {
+                width: 100%;
+            }
+
+            .view-switcher .btn {
+                flex: 1;
+            }
+        }
+
         /* .btn-tambah:focus,
                 .btn-tambah:active {
                     background: #c9670d !important;
@@ -243,16 +453,74 @@
                                                                                                                                                                                                                                                                                                                                                                                                                                                                             height: 45px;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                             border-radius: 10px;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                         } */
+
+        /* Action Button Styling */
+        .btn-action {
+            background: #ffffff;
+            border: 1px solid #edf0f4;
+            color: #4b5563;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+
+        .btn-action:hover {
+            background: #111827;
+            color: #ffffff;
+            border-color: #111827;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(17, 24, 39, 0.15);
+        }
+
+        .btn-action:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
     </style>
     <div class="page-card">
 
-        <div class="page-header">
+        <div class="admin-page-header">
 
-            <h4 class="page-title">
-                Daftar Mustahik
-            </h4>
+            <div class="admin-title-block">
+                <h4 class="admin-page-title">
+                    {{ $pageTitle }}
+                </h4>
+                <p class="admin-page-subtitle">
+                    Kelola data penerima manfaat (mustahik), jatah beras, dan riwayat pengambilan.
+                </p>
 
-            <div class="gap-2 d-flex align-items-center">
+                <div class="mustahik-summary">
+                    <span class="summary-pill">
+                        Aktif
+                        <strong>{{ number_format($mustahikStats['aktif']) }}</strong>
+                    </span>
+                    <span class="summary-pill">
+                        Nonaktif
+                        <strong>{{ number_format($mustahikStats['nonaktif']) }}</strong>
+                    </span>
+                    <span class="summary-pill">
+                        Total
+                        <strong>{{ number_format($mustahikStats['total']) }}</strong>
+                    </span>
+                </div>
+            </div>
+
+            <div class="mustahik-actions">
+                <div class="view-switcher">
+                    <a href="{{ route('mustahik.active') }}"
+                        class="btn {{ $activeOnly ? 'active' : '' }}">
+                        Aktif
+                    </a>
+                    <a href="{{ route('mustahik.index') }}"
+                        class="btn {{ $activeOnly ? '' : 'active' }}">
+                        Keseluruhan
+                    </a>
+                </div>
 
                 <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalFilterMustahik">
 
@@ -268,11 +536,8 @@
 
                 </span>
 
-            </div>
-
-            <div class="header-action">
-
-                <a href="{{ route('mustahik.index') }}" class="btn btn-primary">
+                <a href="{{ $activeOnly ? route('mustahik.active') : route('mustahik.index') }}"
+                    class="btn btn-primary btn-icon">
 
                     <i class="bi bi-arrow-clockwise"></i>
 
@@ -280,11 +545,14 @@
 
                 <button class="btn btn-tambah" data-bs-toggle="modal" data-bs-target="#modalTambahMustahik">
 
+                    <i class="bi bi-plus-lg me-1"></i>
+
                     Tambah
 
                 </button>
 
-                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalLaporanPengambilan">
+                <button class="btn btn-secondary btn-icon" data-bs-toggle="modal"
+                    data-bs-target="#modalLaporanPengambilan">
 
                     <i class="bi bi-download"></i>
 
@@ -318,6 +586,8 @@
 
                         <th>Jatah Beras (Gram)</th>
 
+                        <th>Status</th>
+
                         <th width="100">Aksi</th>
 
                     </tr>
@@ -331,7 +601,8 @@
                             data-alamat="{{ strtolower($mustahik->alamat) }}"
                             data-kecamatan="{{ strtolower($mustahik->village?->district?->name) }}"
                             data-desa="{{ strtolower($mustahik->village?->name) }}"
-                            data-jatah="{{ $mustahik->jatah_beras_gram }}">
+                            data-jatah="{{ $mustahik->jatah_beras_gram }}"
+                            data-status="{{ $mustahik->status }}">
 
                             <td>{{ $mustahik->nama }}</td>
 
@@ -356,6 +627,20 @@
                             </td>
 
                             <td>
+                                @if ($mustahik->status === 'aktif')
+                                    <span class="badge-on status-badge">
+                                        <i class="bi bi-circle-fill"></i>
+                                        Aktif
+                                    </span>
+                                @else
+                                    <span class="badge-off status-badge">
+                                        <i class="bi bi-circle-fill"></i>
+                                        Nonaktif
+                                    </span>
+                                @endif
+                            </td>
+
+                            <td>
 
                                 <button class="btn-action" data-bs-toggle="modal"
                                     data-bs-target="#modalMustahik{{ $mustahik->id }}">
@@ -372,7 +657,7 @@
 
                         <tr>
 
-                            <td colspan="9" class="py-4 text-center">
+                            <td colspan="10" class="py-4 text-center">
 
                                 Belum ada data mustahik
 
@@ -382,11 +667,11 @@
                     @endforelse
                 </tbody>
             </table>
-            <div class="mt-3 d-flex justify-content-end">
+        </div>
+        <div class="mt-3 d-flex justify-content-end">
 
-                {{ $mustahiks->links() }}
+            {{ $mustahiks->links('pagination::bootstrap-5') }}
 
-            </div>
         </div>
         <div class="modal fade" id="modalLaporanPengambilan" tabindex="-1">
 
@@ -600,6 +885,20 @@
                                 {{ $mustahik->rfid_uid }}
                             </p>
 
+                            <div class="mb-3">
+                                @if ($mustahik->status === 'aktif')
+                                    <span class="badge-on status-badge">
+                                        <i class="bi bi-circle-fill"></i>
+                                        Aktif
+                                    </span>
+                                @else
+                                    <span class="badge-off status-badge">
+                                        <i class="bi bi-circle-fill"></i>
+                                        Nonaktif
+                                    </span>
+                                @endif
+                            </div>
+
                             <div class="mb-3 row g-2">
 
                                 <div class="col-6">
@@ -615,15 +914,20 @@
 
                                 <div class="col-6">
 
-                                    <form action="{{ route('mustahik.destroy', $mustahik->id) }}" method="POST"
-                                        class="delete-form">
+                                    <form action="{{ route('mustahik.update-status', $mustahik->id) }}" method="POST"
+                                        class="status-form" data-status-action="{{ $mustahik->status === 'aktif' ? 'nonaktif' : 'aktif' }}"
+                                        data-mustahik-name="{{ $mustahik->nama }}">
 
                                         @csrf
-                                        @method('DELETE')
+                                        @method('PATCH')
 
-                                        <button type="submit" class="btn btn-danger w-100">
+                                        <input type="hidden" name="status"
+                                            value="{{ $mustahik->status === 'aktif' ? 'nonaktif' : 'aktif' }}">
 
-                                            Hapus
+                                        <button type="submit"
+                                            class="btn {{ $mustahik->status === 'aktif' ? 'btn-warning' : 'btn-success' }} w-100">
+
+                                            {{ $mustahik->status === 'aktif' ? 'Nonaktifkan' : 'Aktifkan' }}
 
                                         </button>
 
@@ -632,6 +936,22 @@
                                 </div>
 
                             </div>
+
+                            @unless ($activeOnly)
+                                <form action="{{ route('mustahik.destroy', $mustahik->id) }}" method="POST"
+                                    class="mb-3 delete-form" data-mustahik-name="{{ $mustahik->nama }}">
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button type="submit" class="btn btn-danger w-100">
+
+                                        Hapus Permanen
+
+                                    </button>
+
+                                </form>
+                            @endunless
 
                             <button class="mb-3 btn btn-success w-100" data-bs-toggle="modal"
                                 data-bs-target="#modalJatah{{ $mustahik->id }}">
@@ -666,7 +986,7 @@
 
                                 {{-- HEADER --}}
 
-                                <div class="mb-4 d-flex justify-content-between align-items-center">
+                                <div class="riwayat-header">
 
                                     <h5 class="mb-0 fw-bold">
 
@@ -678,28 +998,28 @@
 
                                     <div class="riwayat-filter" id="filterGroup{{ $mustahik->id }}">
 
-                                        <button class="btn btn-outline-secondary rounded-pill btn-sm filter-btn"
+                                        <button class="btn btn-outline-secondary filter-btn"
                                             onclick="filterHistory({{ $mustahik->id }},7,this)">
 
                                             1 Minggu
 
                                         </button>
 
-                                        <button class="btn btn-outline-secondary rounded-pill btn-sm filter-btn"
+                                        <button class="btn btn-outline-secondary filter-btn"
                                             onclick="filterHistory({{ $mustahik->id }},30,this)">
 
                                             1 Bulan
 
                                         </button>
 
-                                        <button class="btn btn-outline-secondary rounded-pill btn-sm filter-btn"
+                                        <button class="btn btn-outline-secondary filter-btn"
                                             onclick="filterHistory({{ $mustahik->id }},180,this)">
 
                                             6 Bulan
 
                                         </button>
 
-                                        <button class="btn btn-dark rounded-pill btn-sm filter-btn"
+                                        <button class="btn btn-outline-secondary filter-btn active-filter"
                                             onclick="filterHistory({{ $mustahik->id }},'all',this)">
 
                                             Semua
@@ -1482,6 +1802,18 @@
 
                         </div>
 
+                        <div class="mb-3 col-md-6">
+
+                            <label>Status</label>
+
+                            <select id="filterStatus" class="form-control" {{ $activeOnly ? 'disabled' : '' }}>
+                                <option value="">Semua Status</option>
+                                <option value="aktif" {{ $activeOnly ? 'selected' : '' }}>Aktif</option>
+                                <option value="nonaktif">Nonaktif</option>
+                            </select>
+
+                        </div>
+
                     </div>
 
                     <div class="gap-2 mt-3 d-flex justify-content-end">
@@ -1734,6 +2066,43 @@
             });
     </script>
     <script>
+        document.querySelectorAll('.status-form')
+            .forEach(form => {
+
+                form.addEventListener('submit', function(e) {
+
+                    e.preventDefault();
+
+                    const action =
+                        form.dataset.statusAction;
+
+                    const name =
+                        form.dataset.mustahikName;
+
+                    Swal.fire({
+                        title: action === 'aktif' ? 'Aktifkan Mustahik?' : 'Nonaktifkan Mustahik?',
+                        text: action === 'aktif' ?
+                            name + ' akan muncul lagi di daftar mustahik aktif.' :
+                            name + ' akan dipindahkan dari daftar mustahik aktif.',
+                        icon: action === 'aktif' ? 'question' : 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: action === 'aktif' ? '#198754' : '#f59e0b',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: action === 'aktif' ? 'Ya, Aktifkan' : 'Ya, Nonaktifkan',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+
+                    });
+
+                });
+
+            });
+    </script>
+    <script>
         document.querySelectorAll('.delete-form')
             .forEach(form => {
 
@@ -1741,9 +2110,12 @@
 
                     e.preventDefault();
 
+                    const name =
+                        form.dataset.mustahikName;
+
                     Swal.fire({
-                        title: 'Hapus Mustahik?',
-                        text: 'Data yang dihapus tidak dapat dikembalikan.',
+                        title: 'Hapus Permanen?',
+                        text: name + ' akan dihapus dari database beserta riwayat yang terhubung.',
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#dc3545',
@@ -1784,22 +2156,11 @@
 
             // Reset warna tombol
             buttons.forEach(btn => {
-
-                btn.style.backgroundColor = '';
-                btn.style.borderColor = '';
-                btn.style.color = '';
-
+                btn.classList.remove('active-filter');
             });
 
             // Tombol aktif
-            button.style.backgroundColor =
-                '#F08519';
-
-            button.style.borderColor =
-                '#F08519';
-
-            button.style.color =
-                '#ffffff';
+            button.classList.add('active-filter');
 
             // Filter tabel
             const rows =
@@ -1854,11 +2215,7 @@
             );
         }
 
-        buttons.forEach(btn => {
-            btn.classList.remove('filter-active');
-        });
 
-        button.classList.add('filter-active');
     </script>
     <script>
         function filterLaporanPengambilan() {
@@ -1996,6 +2353,13 @@
                 )
                 .value;
 
+            const status =
+                document
+                .getElementById(
+                    'filterStatus'
+                )
+                .value;
+
             const rows =
                 document.querySelectorAll(
                     '.mustahik-row'
@@ -2014,6 +2378,10 @@
                     (
                         jatah === '' ||
                         row.dataset.jatah == jatah
+                    ) &&
+                    (
+                        status === '' ||
+                        row.dataset.status === status
                     );
 
                 if (cocok) {
@@ -2050,13 +2418,22 @@
         function resetFilterMustahik() {
             document
                 .querySelectorAll(
-                    '#modalFilterMustahik input'
+                    '#modalFilterMustahik input, #modalFilterMustahik select'
                 )
                 .forEach(input => {
 
                     input.value = '';
 
                 });
+
+            const filterStatus =
+                document.getElementById(
+                    'filterStatus'
+                );
+
+            if (filterStatus.disabled) {
+                filterStatus.value = 'aktif';
+            }
 
             document
                 .querySelectorAll(

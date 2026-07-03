@@ -1,6 +1,15 @@
 @extends('layouts.admin')
 
 @section('content')
+    @php
+        $machineStats = [
+            'total' => $machines->count(),
+            'aktif' => $machines->where('status_mesin', 'aktif')->count(),
+            'nonaktif' => $machines->where('status_mesin', 'nonaktif')->count(),
+            'maintenance' => $machines->where('status_mesin', 'maintenance')->count(),
+        ];
+    @endphp
+
     <style>
         .btn-tambah {
             background: #F08519;
@@ -15,20 +24,171 @@
             border-color: #d9720f;
             color: #fff;
         }
+
+        .machine-code {
+            color: #111827;
+            font-weight: 500;
+        }
+
+        .machine-location {
+            max-width: 260px;
+            white-space: normal;
+        }
+
+        .table-responsive {
+            border: 1px solid #edf0f4;
+            border-radius: 14px;
+            max-height: 60vh;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .mesin-table {
+            margin-bottom: 0;
+        }
+
+        .mesin-table thead th {
+            background: #f8fafc;
+            padding-top: 14px;
+            padding-bottom: 14px;
+            white-space: nowrap;
+            font-weight: 600;
+            border: none;
+        }
+
+        .mesin-table tbody td {
+            padding-top: 14px;
+            padding-bottom: 14px;
+            vertical-align: middle;
+        }
+
+        .mesin-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        /* Custom Toggle Switch */
+        .custom-switch {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            gap: 12px;
+            margin: 10px auto;
+        }
+
+        .custom-switch input {
+            display: none;
+        }
+
+        .switch-slider {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background-color: #e5e7eb;
+            border-radius: 30px;
+            transition: 0.3s all ease-in-out;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .switch-slider::before {
+            content: "";
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s all ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .custom-switch input:checked + .switch-slider {
+            background-color: #10b981;
+        }
+
+        .custom-switch input:checked + .switch-slider::before {
+            transform: translateX(24px);
+        }
+
+        .switch-label {
+            font-size: 15px;
+            font-weight: 500;
+            color: #6b7280;
+            user-select: none;
+        }
+
+        .custom-switch input:checked ~ .switch-label {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        /* Action Button Styling */
+        .btn-action {
+            background: #ffffff;
+            border: 1px solid #edf0f4;
+            color: #4b5563;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+
+        .btn-action:hover {
+            background: #111827;
+            color: #ffffff;
+            border-color: #111827;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(17, 24, 39, 0.15);
+        }
+
+        .btn-action:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
     </style>
     <div class="page-card">
 
-        <div class="page-header">
+        <div class="admin-page-header">
 
-            <h4>Daftar Mesin</h4>
+            <div class="admin-title-block">
+                <h4 class="admin-page-title">Daftar Mesin</h4>
+                <p class="admin-page-subtitle">
+                    Kelola perangkat ATM, lokasi, stok, dan jadwal operasional.
+                </p>
 
-            <div class="header-action">
+                <div class="admin-summary">
+                    <span class="summary-pill">
+                        Total
+                        <strong>{{ number_format($machineStats['total']) }}</strong>
+                    </span>
+                    <span class="summary-pill">
+                        Aktif
+                        <strong>{{ number_format($machineStats['aktif']) }}</strong>
+                    </span>
+                    <span class="summary-pill">
+                        Nonaktif
+                        <strong>{{ number_format($machineStats['nonaktif']) }}</strong>
+                    </span>
+                    <!-- <span class="summary-pill">
+                        Maintenance
+                        <strong>{{ number_format($machineStats['maintenance']) }}</strong>
+                    </span> -->
+                </div>
+            </div>
 
-                <a href="{{ route('mesin.index') }}" class="btn btn-primary">
+            <div class="admin-actions">
+
+                <a href="{{ route('mesin.index') }}" class="btn btn-primary btn-icon">
                     <i class="bi bi-arrow-clockwise"></i>
                 </a>
 
                 <button class="btn btn-tambah" data-bs-toggle="modal" data-bs-target="#modalTambah">
+
+                    <i class="bi bi-plus-lg"></i>
 
                     Tambah
 
@@ -62,7 +222,9 @@
                         <tr>
 
                             <td>
-                                {{ $machine->machine_code }}
+                                <span class="machine-code">
+                                    {{ $machine->machine_code }}
+                                </span>
                             </td>
 
                             <td>
@@ -72,22 +234,25 @@
                             <td>
 
                                 @if ($machine->status_mesin == 'aktif')
-                                    <span class="badge-on">
+                                    <span class="badge-on status-badge">
+                                        <i class="bi bi-circle-fill"></i>
                                         Aktif
                                     </span>
                                 @elseif($machine->status_mesin == 'maintenance')
-                                    <span class="badge-warning">
+                                    <span class="badge-warning status-badge">
+                                        <i class="bi bi-circle-fill"></i>
                                         Maintenance
                                     </span>
                                 @else
-                                    <span class="badge-off">
+                                    <span class="badge-off status-badge">
+                                        <i class="bi bi-circle-fill"></i>
                                         Nonaktif
                                     </span>
                                 @endif
 
                             </td>
 
-                            <td>
+                            <td class="machine-location">
                                 {{ $machine->lokasi_penempatan }}
                             </td>
 
@@ -96,21 +261,28 @@
                             </td>
 
                             <td>
-                                {{ $machine->jadwal_mulai ?? '-' }}
+                                {{ $machine->jadwal_mulai ? $machine->jadwal_mulai->format('d M Y H:i') : '-' }}
                             </td>
 
                             <td>
-                                {{ $machine->jadwal_selesai ?? '-' }}
+                                {{ $machine->jadwal_selesai ? $machine->jadwal_selesai->format('d M Y H:i') : '-' }}
                             </td>
 
                             <td>
 
-                                @if ($machine->status_jadwal == 'aktif')
-                                    <span class="badge-jadwal">
+                                @if ($machine->status_penjadwalan == 'aktif')
+                                    <span class="badge-jadwal status-badge">
+                                        <i class="bi bi-circle-fill"></i>
                                         Aktif
                                     </span>
+                                @elseif($machine->status_penjadwalan == 'belum dijadwalkan')
+                                    <span class="badge-warning status-badge">
+                                        <i class="bi bi-circle-fill"></i>
+                                        Belum Dijadwalkan
+                                    </span>
                                 @else
-                                    <span class="badge-off">
+                                    <span class="badge-off status-badge">
+                                        <i class="bi bi-circle-fill"></i>
                                         Nonaktif
                                     </span>
                                 @endif
@@ -171,16 +343,13 @@
                                             @csrf
                                             @method('PATCH')
 
-                                            <div class="form-check form-switch">
-
-                                                <input class="form-check-input" type="checkbox"
-                                                    onchange="this.form.submit()"
-                                                    {{ $machine->status_mesin == 'aktif' ? 'checked' : '' }}>
-
-                                                <label class="form-check-label">
-                                                    Mesin Aktif
+                                            <div class="d-flex justify-content-center">
+                                                <label class="custom-switch">
+                                                    <input type="checkbox" onchange="this.form.submit()"
+                                                        {{ $machine->status_mesin == 'aktif' ? 'checked' : '' }}>
+                                                    <span class="switch-slider"></span>
+                                                    <span class="switch-label">Mesin Aktif</span>
                                                 </label>
-
                                             </div>
 
                                         </form>
@@ -414,6 +583,11 @@
                 </tbody>
 
             </table>
+        </div>
+        
+        <div class="mt-3 d-flex justify-content-end">
+            {{ $machines->links('pagination::bootstrap-5') }}
+        </div>
             <div class="modal fade" id="modalTambah">
 
                 <div class="modal-dialog modal-lg">

@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 
 @section('content')
+    @php
+        $adminCount = $admins->total();
+    @endphp
+
     <style>
         .content-card {
             background: #fff;
@@ -78,32 +82,99 @@
             color: #fff;
         }
 
+        .admin-name-cell {
+            color: #111827;
+            font-weight: 500;
+        }
+
+        .admin-username {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #f8fafc;
+            color: #4b5563;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
         /* .btn-tambah:focus,
                 .btn-tambah:active {
                     background: #c9670d !important;
                     border-color: #c9670d !important;
                     box-shadow: 0 0 0 0.2rem rgba(240, 133, 25, 0.25);
                 } */
+
+        .table-responsive {
+            border: 1px solid #edf0f4;
+            border-radius: 14px;
+            max-height: 60vh;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .mesin-table {
+            margin-bottom: 0;
+        }
+
+        .mesin-table thead th {
+            background: #f8fafc;
+            padding-top: 14px;
+            padding-bottom: 14px;
+            white-space: nowrap;
+            font-weight: 600;
+            border: none;
+        }
+
+        .mesin-table tbody td {
+            padding-top: 14px;
+            padding-bottom: 14px;
+            vertical-align: middle;
+        }
+
+        .mesin-table tbody tr:hover {
+            background: #f9fafb;
+        }
     </style>
-    <div class="content-card">
+    <div class="page-card">
 
-        <div class="card-header-admin">
+        <div class="admin-page-header">
 
-            <h5>
-                Manajemen Admin
-            </h5>
+            <div class="admin-title-block">
+                <h4 class="admin-page-title">
+                    Kelola Admin
+                </h4>
+                <p class="admin-page-subtitle">
+                    Atur akun pengelola yang memiliki akses ke dashboard.
+                </p>
 
-            <button class="btn btn-tambah" data-bs-toggle="modal" data-bs-target="#modalTambahAdmin">
+                <div class="admin-summary">
+                    <span class="summary-pill">
+                        Total Admin
+                        <strong>{{ number_format($adminCount) }}</strong>
+                    </span>
+                    <span class="summary-pill">
+                        Halaman
+                        <strong>{{ $admins->currentPage() }}/{{ $admins->lastPage() }}</strong>
+                    </span>
+                </div>
+            </div>
 
-                Tambah
+            <div class="admin-actions">
+                <button class="btn btn-tambah" data-bs-toggle="modal" data-bs-target="#modalTambahAdmin">
 
-            </button>
+                    <i class="bi bi-plus-lg"></i>
+
+                    Tambah
+
+                </button>
+            </div>
 
         </div>
 
         <div class="table-responsive">
 
-            <table class="table align-middle">
+            <table class="table mesin-table align-middle">
 
                 <thead>
 
@@ -143,35 +214,41 @@
                             </td>
 
                             <td>
-                                {{ $admin->nama }}
+                                <span class="admin-name-cell">
+                                    {{ $admin->nama }}
+                                </span>
                             </td>
 
                             <td>
-                                {{ $admin->username }}
+                                <span class="admin-username">
+                                    {{ $admin->username }}
+                                </span>
                             </td>
 
                             <td>
-                                {{ $admin->email }}
+                                {{ $admin->email ?? '-' }}
                             </td>
 
                             <td>
+                                <div class="action-group">
 
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#modalEditAdmin{{ $admin->id }}">
-                                    Edit
-                                </button>
-
-                                <form action="{{ route('admin-management.destroy', $admin->id) }}" method="POST"
-                                    class="d-inline delete-form">
-
-                                    @csrf
-                                    @method('DELETE')
-
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        Hapus
+                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#modalEditAdmin{{ $admin->id }}">
+                                        <i class="bi bi-pencil-square"></i>
                                     </button>
 
-                                </form>
+                                    <form action="{{ route('admin-management.destroy', $admin->id) }}" method="POST"
+                                        class="d-inline delete-form">
+
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+
+                                    </form>
+                                </div>
 
                             </td>
 
@@ -181,7 +258,7 @@
 
                         <tr>
 
-                            <td colspan="5" class="py-4 text-center">
+                            <td colspan="5" class="table-empty">
 
                                 Belum ada data admin
 
@@ -194,6 +271,10 @@
 
             </table>
 
+        </div>
+
+        <div class="mt-3 d-flex justify-content-end">
+            {{ $admins->links('pagination::bootstrap-5') }}
         </div>
 
     </div>
