@@ -48,5 +48,11 @@
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true
+  },
+  "resources/js/landing.js": {
+    "file": "assets/landing-wo_ODC-e.js",
+    "name": "landing",
+    "src": "resources/js/landing.js",
+    "isEntry": true
   }
 }

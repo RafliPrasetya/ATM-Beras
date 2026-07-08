@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/css/dashboard.css',
                 'resources/css/login.css',
                 'resources/js/app.js',
+                'resources/js/landing.js'
             ],
             refresh: true,
         }),
