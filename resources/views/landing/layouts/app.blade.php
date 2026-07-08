@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'ATM Beras Rogojampi')</title>
 
-    {{-- <link rel="icon" type="image/png" href="{{ asset('favicon1.png') }}"> --}}
+    <link rel="shortcut icon" href="{{ asset('storage/images/poli_lazismu.png') }}" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 

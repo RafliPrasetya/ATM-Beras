@@ -7,6 +7,8 @@
 
     <title>@yield('title', 'ATM Beras')</title>
 
+    <link rel="shortcut icon" href="{{ asset('storage/images/poli_lazismu.png') }}" type="image/png">
+
     @vite(['resources/css/app.css', 'resources/css/dashboard.css', 'resources/js/app.js'])
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
