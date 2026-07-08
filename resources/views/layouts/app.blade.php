@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATM Beras</title>
+    <title>ATM Beras Rogojampi</title>
 
     <link rel="shortcut icon" href="{{ asset('storage/images/poli_lazismu.png') }}" type="image/png">
 

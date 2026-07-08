@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATM Beras — Kiosk</title>
+    <title>ATM Beras Rogojampi — Kiosk</title>
     <link rel="shortcut icon" href="{{ asset('storage/images/poli_lazismu.png') }}" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -550,7 +550,7 @@
     <div class="kiosk-logo">
         <div class="kiosk-logo-icon">🌾</div>
         <div class="kiosk-logo-text">
-            <h1>ATM Beras</h1>
+            <h1>ATM Beras Rogojampi</h1>
             <p>Sistem Distribusi Beras Digital</p>
         </div>
     </div>
