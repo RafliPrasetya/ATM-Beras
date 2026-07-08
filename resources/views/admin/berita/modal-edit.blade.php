@@ -34,7 +34,7 @@
                             </label>
 
                             <input type="text" name="judul" class="form-control" value="{{ $item->judul }}"
-                                required>
+                                required placeholder="Masukkan judul berita">
 
                         </div>
 
@@ -68,7 +68,7 @@
 
                             </label>
 
-                            <input type="file" name="gambar" class="form-control">
+                            <input type="file" name="gambar" class="form-control" accept="image/*">
 
                         </div>
 
@@ -80,7 +80,8 @@
 
                             </label>
 
-                            <textarea name="konten" rows="8" class="form-control" required>{{ $item->konten }}</textarea>
+                            <textarea name="konten" rows="8" class="form-control" required
+                                placeholder="Tuliskan konten atau isi berita secara lengkap di sini...">{{ $item->konten }}</textarea>
 
                         </div>
 

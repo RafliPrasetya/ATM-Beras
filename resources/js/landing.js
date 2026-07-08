@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let lastScrollY = window.scrollY;
     let ticking = false;
+    let isProgrammaticScrolling = false;
 
     /* Moving hover indicator */
     const indicator = document.createElement("span");
@@ -109,6 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (
+            !isProgrammaticScrolling &&
             !isMobileMenuOpen &&
             currentScrollY > lastScrollY &&
             currentScrollY > 150
@@ -146,6 +148,9 @@ document.addEventListener("DOMContentLoaded", function () {
             if (target) {
                 event.preventDefault();
 
+                isProgrammaticScrolling = true;
+                navbar.classList.remove("navbar-hidden");
+
                 target.scrollIntoView({
                     behavior: "smooth",
                     block: "start",
@@ -153,6 +158,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 history.pushState(null, "", hash);
                 setActiveLink(hash);
+
+                // Reset programmatic scrolling flag once smooth scrolling stops
+                let scrollTimeout;
+                const onScroll = () => {
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => {
+                        isProgrammaticScrolling = false;
+                        window.removeEventListener('scroll', onScroll);
+                    }, 100);
+                };
+                window.addEventListener('scroll', onScroll);
+
+                // Fallback reset in case no scroll event fires (already at section)
+                setTimeout(() => {
+                    isProgrammaticScrolling = false;
+                }, 1000);
 
                 if (
                     navbarCollapse &&

@@ -25,6 +25,13 @@ class NewsController extends Controller
             'konten' => 'required',
             'status' => 'required',
             'gambar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ], [
+            'judul.required' => 'Judul berita tidak boleh kosong.',
+            'konten.required' => 'Konten berita tidak boleh kosong.',
+            'status.required' => 'Status berita wajib dipilih.',
+            'gambar.image' => 'File yang diupload wajib berupa gambar.',
+            'gambar.mimes' => 'Format file gambar harus berupa: JPG, JPEG, PNG, atau WEBP.',
+            'gambar.max' => 'Ukuran file gambar tidak boleh melebihi 2 MB.',
         ]);
 
         $gambar = null;
@@ -56,6 +63,13 @@ class NewsController extends Controller
             'konten' => 'required',
             'status' => 'required',
             'gambar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ], [
+            'judul.required' => 'Judul berita tidak boleh kosong.',
+            'konten.required' => 'Konten berita tidak boleh kosong.',
+            'status.required' => 'Status berita wajib dipilih.',
+            'gambar.image' => 'File yang diupload wajib berupa gambar.',
+            'gambar.mimes' => 'Format file gambar harus berupa: JPG, JPEG, PNG, atau WEBP.',
+            'gambar.max' => 'Ukuran file gambar tidak boleh melebihi 2 MB.',
         ]);
 
         $data = [

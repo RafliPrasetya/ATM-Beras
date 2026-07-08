@@ -126,11 +126,70 @@
     cursor: not-allowed;
 }
 
-#btnLoading,
-#btnSuccess {
-    display: flex;
+.btn-login.btn-success-active {
+    background: #10b981 !important; /* Premium emerald green */
+    box-shadow: 0 8px 20px rgba(16, 185, 129, .35) !important;
+}
+
+.spinner-svg {
+    animation: rotate 2s linear infinite;
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+}
+
+.spinner-svg .path {
+    stroke: #ffffff;
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes dash {
+    0% {
+        stroke-dasharray: 1, 150;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -35;
+    }
+    100% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -124;
+    }
+}
+
+/* ERROR STATES & VALIDATION */
+.custom-input.is-invalid {
+    border-color: #dc3545 !important;
+    background-image: none !important;
+    padding-right: 45px;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.05) !important;
+}
+
+.custom-input.is-invalid:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15) !important;
+}
+
+.invalid-feedback {
+    display: none;
+    color: #dc3545;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 6px;
     align-items: center;
-    justify-content: center;
+    gap: 4px;
+}
+
+.invalid-feedback.d-block {
+    display: flex !important;
 }
 
 /* RESPONSIVE DESIGN */
@@ -138,37 +197,37 @@
     .login-wrapper {
         flex-direction: column;
     }
-    
+
     .login-left {
         width: 100%;
         min-height: 35vh;
         padding: 40px 20px;
     }
-    
+
     .branding .atm-icon {
         width: 100px;
         margin-bottom: 15px;
     }
-    
+
     .branding h1 {
         font-size: 20px;
     }
-    
+
     .partner-logo {
         margin-top: 15px;
     }
-    
+
     .partner-logo img {
         height: 40px;
     }
-    
+
     .login-right {
         width: 100%;
         min-height: 65vh;
         padding: 30px 20px;
         align-items: flex-start;
     }
-    
+
     .login-card {
         width: 100%;
         max-width: 400px;

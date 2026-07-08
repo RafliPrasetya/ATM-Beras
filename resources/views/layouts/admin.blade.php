@@ -91,6 +91,18 @@
             });
         </script>
     @endif
+    @if ($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Menyimpan Data',
+                    html: `{!! implode('<br>', $errors->all()) !!}`,
+                    confirmButtonColor: '#dc3545'
+                });
+            });
+        </script>
+    @endif
     <script>
         document.querySelectorAll('.has-submenu')
             .forEach(item => {

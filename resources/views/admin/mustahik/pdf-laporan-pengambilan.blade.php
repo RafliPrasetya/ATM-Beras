@@ -64,7 +64,7 @@
 
                 <th>Mustahik</th>
 
-                <th>RFID</th>
+                <!-- <th>RFID</th> -->
 
                 <th>Mesin</th>
 
@@ -91,9 +91,9 @@
                         {{ $transaction->mustahik->nama }}
                     </td>
 
-                    <td>
+                    <!-- <td>
                         {{ $transaction->mustahik->rfid_uid }}
-                    </td>
+                    </td> -->
 
                     <td>
                         {{ $transaction->machine->machine_code }}

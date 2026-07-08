@@ -12,6 +12,29 @@
     @endphp
 
     <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spinning {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        .table-loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99;
+            border-radius: 14px;
+            backdrop-filter: blur(2px);
+        }
 
         .search-wrapper {
             position: relative;
@@ -494,7 +517,7 @@
                     Kelola data penerima manfaat (mustahik), jatah beras, dan riwayat pengambilan.
                 </p>
 
-                <div class="mustahik-summary">
+                <div id="mustahikSummary" class="mustahik-summary">
                     <span class="summary-pill">
                         Aktif
                         <strong>{{ number_format($mustahikStats['aktif']) }}</strong>
@@ -536,7 +559,7 @@
 
                 </span>
 
-                <a href="{{ $activeOnly ? route('mustahik.active') : route('mustahik.index') }}"
+                <a id="btnRefreshMustahik" href="{{ $activeOnly ? route('mustahik.active') : route('mustahik.index') }}"
                     class="btn btn-primary btn-icon">
 
                     <i class="bi bi-arrow-clockwise"></i>
@@ -551,323 +574,132 @@
 
                 </button>
 
-                <button class="btn btn-secondary btn-icon" data-bs-toggle="modal"
-                    data-bs-target="#modalLaporanPengambilan">
-
-                    <i class="bi bi-download"></i>
-
-                </button>
 
             </div>
 
         </div>
 
-        <div class="table-responsive">
+        <div class="position-relative">
+            <div id="mustahikTableWrapper">
+                <div class="table-responsive">
 
-            <table class="table mesin-table">
+                    <table class="table mesin-table">
 
-                <thead>
+                        <thead>
 
-                    <tr>
+                            <tr>
 
-                        <th>Nama Mustahik</th>
+                                <th>Nama Mustahik</th>
 
-                        <th>ID Penerima</th>
+                                <th>ID Penerima</th>
 
-                        <th>NIK</th>
+                                <th>NIK</th>
 
-                        <th>No HP</th>
+                                <th>No HP</th>
 
-                        <th>Alamat Lengkap</th>
+                                <th>Alamat Lengkap</th>
 
-                        <th>Kecamatan</th>
+                                <th>Kecamatan</th>
 
-                        <th>Desa</th>
+                                <th>Desa</th>
 
-                        <th>Jatah Beras (Gram)</th>
+                                <th>Jatah Beras (Gram)</th>
 
-                        <th>Status</th>
+                                <th>Status</th>
 
-                        <th width="100">Aksi</th>
+                                <th width="100">Aksi</th>
 
-                    </tr>
+                            </tr>
 
-                </thead>
+                        </thead>
 
-                <tbody>
+                        <tbody>
 
-                    @forelse($mustahiks as $mustahik)
-                        <tr class="mustahik-row" data-nama="{{ strtolower($mustahik->nama) }}"
-                            data-alamat="{{ strtolower($mustahik->alamat) }}"
-                            data-kecamatan="{{ strtolower($mustahik->village?->district?->name) }}"
-                            data-desa="{{ strtolower($mustahik->village?->name) }}"
-                            data-jatah="{{ $mustahik->jatah_beras_gram }}"
-                            data-status="{{ $mustahik->status }}">
+                            @forelse($mustahiks as $mustahik)
+                                <tr class="mustahik-row" data-nama="{{ strtolower($mustahik->nama) }}"
+                                    data-alamat="{{ strtolower($mustahik->alamat) }}"
+                                    data-kecamatan="{{ strtolower($mustahik->village?->district?->name) }}"
+                                    data-desa="{{ strtolower($mustahik->village?->name) }}"
+                                    data-jatah="{{ $mustahik->jatah_beras_gram }}"
+                                    data-status="{{ $mustahik->status }}">
 
-                            <td>{{ $mustahik->nama }}</td>
+                                    <td>{{ $mustahik->nama }}</td>
 
-                            <td>{{ $mustahik->rfid_uid }}</td>
+                                    <td>{{ $mustahik->rfid_uid }}</td>
 
-                            <td>{{ $mustahik->nik }}</td>
+                                    <td>{{ $mustahik->nik }}</td>
 
-                            <td>{{ $mustahik->no_hp }}</td>
+                                    <td>{{ $mustahik->no_hp }}</td>
 
-                            <td>{{ $mustahik->alamat }}</td>
+                                    <td>{{ $mustahik->alamat }}</td>
 
-                            <td>
-                                {{ $mustahik->village?->district?->name }}
-                            </td>
+                                    <td>
+                                        {{ $mustahik->village?->district?->name }}
+                                    </td>
 
-                            <td>
-                                {{ $mustahik->village?->name }}
-                            </td>
+                                    <td>
+                                        {{ $mustahik->village?->name }}
+                                    </td>
 
-                            <td>
-                                {{ number_format($mustahik->jatah_beras_gram) }}
-                            </td>
+                                    <td>
+                                        {{ number_format($mustahik->jatah_beras_gram) }}
+                                    </td>
 
-                            <td>
-                                @if ($mustahik->status === 'aktif')
-                                    <span class="badge-on status-badge">
-                                        <i class="bi bi-circle-fill"></i>
-                                        Aktif
-                                    </span>
-                                @else
-                                    <span class="badge-off status-badge">
-                                        <i class="bi bi-circle-fill"></i>
-                                        Nonaktif
-                                    </span>
-                                @endif
-                            </td>
+                                    <td>
+                                        @if ($mustahik->status === 'aktif')
+                                            <span class="badge-on status-badge">
+                                                <i class="bi bi-circle-fill"></i>
+                                                Aktif
+                                            </span>
+                                        @else
+                                            <span class="badge-off status-badge">
+                                                <i class="bi bi-circle-fill"></i>
+                                                Nonaktif
+                                            </span>
+                                        @endif
+                                    </td>
 
-                            <td>
+                                    <td>
 
-                                <button class="btn-action" data-bs-toggle="modal"
-                                    data-bs-target="#modalMustahik{{ $mustahik->id }}">
+                                        <button class="btn-action" data-bs-toggle="modal"
+                                            data-bs-target="#modalMustahik{{ $mustahik->id }}">
 
-                                    <i class="bi bi-three-dots"></i>
-
-                                </button>
-
-                            </td>
-
-                        </tr>
-
-                    @empty
-
-                        <tr>
-
-                            <td colspan="10" class="py-4 text-center">
-
-                                Belum ada data mustahik
-
-                            </td>
-
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="mt-3 d-flex justify-content-end">
-
-            {{ $mustahiks->links('pagination::bootstrap-5') }}
-
-        </div>
-        <div class="modal fade" id="modalLaporanPengambilan" tabindex="-1">
-
-            <div class="modal-dialog modal-xl modal-dialog-centered">
-
-                <div class="border-0 shadow modal-content">
-
-                    <div class="p-4 modal-body">
-
-                        <div
-                            style="
-                        border:1px solid #dcdcdc;
-                        border-radius:20px;
-                        padding:25px;
-                    ">
-
-                            <div class="mb-4 row align-items-center">
-
-                                <div class="col-md-3">
-
-                                    <h4 class="mb-0 fw-bold">
-
-                                        Riwayat
-                                        Pengambilan
-
-                                    </h4>
-
-                                </div>
-
-                                <div class="col-md-9">
-
-                                    <div class="gap-2 d-flex">
-
-                                        <input type="date" class="form-control" id="tanggal_awal">
-
-                                        <input type="date" class="form-control" id="tanggal_akhir">
-
-                                        <button class="text-white btn btn-warning" onclick="filterLaporanPengambilan()">
-
-                                            Cari
+                                            <i class="bi bi-three-dots"></i>
 
                                         </button>
 
-                                        <button class="btn btn-danger" onclick="downloadLaporanPengambilan()">
+                                    </td>
 
-                                            Download PDF
+                                </tr>
 
-                                        </button>
+                            @empty
 
-                                    </div>
+                                <tr>
 
-                                </div>
+                                    <td colspan="10" class="py-4 text-center">
 
-                            </div>
+                                        Belum ada data mustahik
 
-                            <hr>
+                                </td>
 
-                            <div class="table-responsive">
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-3 d-flex justify-content-end">
 
-                                <table class="table align-middle table-hover">
-
-                                    <thead>
-
-                                        <tr>
-
-                                            <th>Tanggal</th>
-
-                                            <th>Mustahik</th>
-
-                                            <th>RFID</th>
-
-                                            <th>Mesin</th>
-
-                                            <th>Jumlah Ambil</th>
-
-                                            <th>Status</th>
-
-                                        </tr>
-
-                                    </thead>
-
-                                    <tbody>
-
-                                        @forelse($transactions as $transaction)
-                                            <tr class="laporan-row" data-gram="{{ $transaction->jumlah_ambil_gram }}"
-                                                data-date="{{ \Carbon\Carbon::parse($transaction->tanggal_pengambilan)->format('Y-m-d') }}">
-
-                                                <td>
-                                                    {{ \Carbon\Carbon::parse($transaction->tanggal_pengambilan)->format('d M Y') }}
-                                                </td>
-
-                                                <td>
-
-                                                    {{ $transaction->mustahik->nama ?? '-' }}
-
-                                                </td>
-
-                                                <td>
-
-                                                    {{ $transaction->mustahik->rfid_uid ?? '-' }}
-
-                                                </td>
-
-                                                <td>
-
-                                                    {{ $transaction->machine->machine_code ?? '-' }}
-
-                                                </td>
-
-                                                <td>
-
-                                                    {{ number_format($transaction->jumlah_ambil_gram) }}
-
-                                                    gram
-
-                                                </td>
-
-                                                <td>
-
-                                                    <span class="badge bg-success">
-
-                                                        Berhasil
-
-                                                    </span>
-
-                                                </td>
-
-                                            </tr>
-
-                                        @empty
-
-                                            <tr>
-
-                                                <td colspan="6" class="py-5 text-center">
-
-                                                    Belum ada data transaksi
-
-                                                </td>
-
-                                            </tr>
-                                        @endforelse
-
-                                    </tbody>
-
-                                </table>
-
-                            </div>
-                            <hr>
-
-                            <div class="row">
-
-                                <div class="col-md-6">
-
-                                    <strong>
-
-                                        Total Transaksi :
-
-                                    </strong>
-
-                                    <span id="totalTransaksi">
-
-                                        {{ $transactions->count() }}
-
-                                    </span>
-
-                                </div>
-
-                                <div class="col-md-6 text-end">
-
-                                    <strong>
-
-                                        Total Beras :
-
-                                    </strong>
-
-                                    <span id="totalBeras">
-
-                                        {{ number_format($transactions->sum('jumlah_ambil_gram')) }}
-
-                                    </span>
-
-                                    gram
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
+                {{ $mustahiks->links('pagination::bootstrap-5') }}
 
                 </div>
-
             </div>
-
+            <div id="mustahikTableSpinner" class="table-loading-overlay d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
         </div>
+
         @foreach ($mustahiks as $mustahik)
             <div class="modal fade" id="modalMustahik{{ $mustahik->id }}" tabindex="-1">
 
@@ -960,7 +792,7 @@
 
                             </button>
 
-                            <button class="btn btn-dark w-100" data-bs-toggle="modal"
+                            <button class="btn btn-dark w-100" data-bs-toggle="modal" data-bs-dismiss="modal"
                                 data-bs-target="#modalRiwayat{{ $mustahik->id }}">
 
                                 Riwayat Pengambilan
@@ -974,6 +806,7 @@
                 </div>
 
             </div>
+
             <div class="modal fade" id="modalRiwayat{{ $mustahik->id }}" tabindex="-1">
 
                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
@@ -1349,6 +1182,7 @@
 
             </div>
 
+
             <div class="modal fade" id="modalJatah{{ $mustahik->id }}" tabindex="-1">
 
                 <div class="modal-dialog">
@@ -1438,45 +1272,52 @@
 
                                     <div class="mb-3 col-md-6">
 
-                                        <label>Nama Mustahik</label>
+                                         <label>Nama Mustahik</label>
 
-                                        <input type="text" name="nama" class="form-control"
-                                            value="{{ $mustahik->nama }}">
-
-                                    </div>
-
-                                    <div class="mb-3 col-md-6">
-
-                                        <label>ID RFID</label>
-
-                                        <input type="text" name="rfid_uid" class="form-control"
-                                            value="{{ $mustahik->rfid_uid }}">
+                                         <input type="text" name="nama" class="form-control"
+                                             value="{{ $mustahik->nama }}" required
+                                             placeholder="Masukkan nama lengkap mustahik">
 
                                     </div>
 
                                     <div class="mb-3 col-md-6">
 
-                                        <label>NIK</label>
+                                         <label>ID RFID</label>
 
-                                        <input type="text" name="nik" class="form-control"
-                                            value="{{ $mustahik->nik }}">
+                                         <input type="text" name="rfid_uid" class="form-control"
+                                             value="{{ $mustahik->rfid_uid }}" required
+                                             placeholder="Tempelkan kartu RFID atau masukkan UID">
 
                                     </div>
 
                                     <div class="mb-3 col-md-6">
 
-                                        <label>No HP</label>
+                                         <label>NIK</label>
 
-                                        <input type="text" name="no_hp" class="form-control"
-                                            value="{{ $mustahik->no_hp }}">
+                                         <input type="text" name="nik" class="form-control"
+                                             value="{{ $mustahik->nik }}" required
+                                             maxlength="16" minlength="16" pattern="[0-9]{16}"
+                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                             placeholder="Masukkan 16 digit NIK">
+
+                                    </div>
+
+                                    <div class="mb-3 col-md-6">
+
+                                         <label>No HP</label>
+
+                                         <input type="text" name="no_hp" class="form-control"
+                                             value="{{ $mustahik->no_hp }}"
+                                             placeholder="Masukkan No HP Mustahik">
 
                                     </div>
 
                                     <div class="mb-3 col-md-12">
 
-                                        <label>Alamat Lengkap</label>
+                                         <label>Alamat Lengkap</label>
 
-                                        <textarea name="alamat" class="form-control">{{ $mustahik->alamat }}</textarea>
+                                         <textarea name="alamat" class="form-control" required
+                                             placeholder="Masukkan alamat lengkap (Jalan, RT/RW, Dusun)">{{ $mustahik->alamat }}</textarea>
 
                                     </div>
 
@@ -1610,9 +1451,10 @@
                                 {{-- Nama --}}
                                 <div class="mb-3 col-md-6">
 
-                                    <label>Nama Mustahik</label>
+                                     <label>Nama Mustahik</label>
 
-                                    <input type="text" name="nama" class="form-control" required>
+                                     <input type="text" name="nama" class="form-control" required
+                                         placeholder="Masukkan nama lengkap mustahik">
 
                                 </div>
 
@@ -1640,9 +1482,10 @@
                                 {{-- RFID --}}
                                 <div class="mb-3 col-md-6">
 
-                                    <label>ID RFID</label>
+                                     <label>ID RFID</label>
 
-                                    <input type="text" name="rfid_uid" class="form-control" required>
+                                     <input type="text" name="rfid_uid" class="form-control" required
+                                         placeholder="Tempelkan kartu RFID atau masukkan UID">
 
                                 </div>
 
@@ -1664,9 +1507,12 @@
                                 {{-- NIK --}}
                                 <div class="mb-3 col-md-6">
 
-                                    <label>NIK</label>
+                                     <label>NIK</label>
 
-                                    <input type="text" name="nik" class="form-control" required>
+                                     <input type="text" name="nik" class="form-control" required
+                                         maxlength="16" minlength="16" pattern="[0-9]{16}"
+                                         oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                         placeholder="Masukkan 16 digit NIK">
 
                                 </div>
 
@@ -1688,9 +1534,10 @@
                                 {{-- No HP --}}
                                 <div class="mb-3 col-md-6">
 
-                                    <label>No HP / WhatsApp</label>
+                                     <label>No HP / WhatsApp</label>
 
-                                    <input type="text" name="no_hp" class="form-control">
+                                     <input type="text" name="no_hp" class="form-control"
+                                         placeholder="Masukkan No HP Mustahik">
 
                                 </div>
 
@@ -1712,9 +1559,10 @@
                                 {{-- Alamat --}}
                                 <div class="mb-3 col-md-12">
 
-                                    <label>Alamat Lengkap</label>
+                                     <label>Alamat Lengkap</label>
 
-                                    <textarea name="alamat" rows="3" class="form-control" required></textarea>
+                                     <textarea name="alamat" rows="3" class="form-control" required
+                                         placeholder="Masukkan alamat lengkap (Jalan, RT/RW, Dusun)"></textarea>
 
                                 </div>
 
@@ -1724,7 +1572,7 @@
                                     <label>Jatah Beras (Gram)</label>
 
                                     <input type="number" name="jatah_beras_gram" class="form-control"
-                                        placeholder="Contoh : 5000" required>
+                                        placeholder="Kosongkan jika belum ada jatah">
 
                                 </div>
 
@@ -2215,102 +2063,6 @@
             );
         }
 
-
-    </script>
-    <script>
-        function filterLaporanPengambilan() {
-            const tanggalAwal =
-                document.getElementById(
-                    'tanggal_awal'
-                ).value;
-
-            const tanggalAkhir =
-                document.getElementById(
-                    'tanggal_akhir'
-                ).value;
-
-            const rows =
-                document.querySelectorAll(
-                    '.laporan-row'
-                );
-
-            let totalTransaksi = 0;
-            let totalBeras = 0;
-
-            rows.forEach(row => {
-
-                const tanggal =
-                    row.dataset.date;
-
-                let tampil = true;
-
-                if (
-                    tanggalAwal &&
-                    tanggal < tanggalAwal
-                ) {
-                    tampil = false;
-                }
-
-                if (
-                    tanggalAkhir &&
-                    tanggal > tanggalAkhir
-                ) {
-                    tampil = false;
-                }
-
-                if (tampil) {
-                    row.style.display = '';
-
-                    totalTransaksi++;
-
-                    totalBeras += parseInt(
-                        row.dataset.gram
-                    );
-                } else {
-                    row.style.display = 'none';
-                }
-
-            });
-
-            document.getElementById(
-                    'totalTransaksi'
-                ).innerText =
-                totalTransaksi;
-
-            document.getElementById(
-                    'totalBeras'
-                ).innerText =
-                totalBeras.toLocaleString(
-                    'id-ID'
-                );
-        }
-    </script>
-    <script>
-        function downloadLaporanPengambilan() {
-            const tanggalAwal =
-                document.getElementById(
-                    'tanggal_awal'
-                ).value;
-
-            const tanggalAkhir =
-                document.getElementById(
-                    'tanggal_akhir'
-                ).value;
-
-            let url =
-                "{{ route('laporan.pengambilan.pdf') }}";
-
-            url +=
-                '?tanggal_awal=' +
-                tanggalAwal +
-                '&tanggal_akhir=' +
-                tanggalAkhir;
-
-            window.open(
-                url,
-                '_blank'
-            );
-        }
     </script>
     <script>
         function filterMustahik() {
@@ -2453,5 +2205,49 @@
                     'd-none'
                 );
         }
+
+        document.getElementById('btnRefreshMustahik').addEventListener('click', function(e) {
+            e.preventDefault();
+            const btn = this;
+            const icon = btn.querySelector('i');
+            const wrapper = document.getElementById('mustahikTableWrapper');
+            const summary = document.getElementById('mustahikSummary');
+            const spinner = document.getElementById('mustahikTableSpinner');
+            
+            if (icon) icon.classList.add('spinning');
+            if (wrapper) wrapper.style.opacity = '0.5';
+            if (summary) summary.style.opacity = '0.5';
+            if (spinner) spinner.classList.remove('d-none');
+            
+            fetch(window.location.href)
+                .then(res => res.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    const newWrapper = doc.getElementById('mustahikTableWrapper');
+                    if (newWrapper && wrapper) {
+                        wrapper.innerHTML = newWrapper.innerHTML;
+                    }
+                    
+                    const newSummary = doc.getElementById('mustahikSummary');
+                    if (newSummary && summary) {
+                        summary.innerHTML = newSummary.innerHTML;
+                    }
+                })
+                .catch(err => console.error('Gagal menyegarkan data:', err))
+                .finally(() => {
+                    if (icon) icon.classList.remove('spinning');
+                    if (spinner) spinner.classList.add('d-none');
+                    if (wrapper) {
+                        wrapper.style.opacity = '1';
+                        wrapper.style.transition = 'opacity 0.2s';
+                    }
+                    if (summary) {
+                        summary.style.opacity = '1';
+                        summary.style.transition = 'opacity 0.2s';
+                    }
+                });
+        });
     </script>
 @endsection

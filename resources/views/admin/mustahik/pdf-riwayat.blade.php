@@ -117,7 +117,7 @@
                 <tr>
                     <td>{{ \Carbon\Carbon::parse($transaction->tanggal_pengambilan)->format('d M Y') }}</td>
                     <td>{{ $transaction->machine->machine_code }}</td>
-                    <td>{{ number_format($transaction->jumlah_ambil_gram, 0, ',', '.') }}</td>
+                    <td>{{ number_format($transaction->jumlah_ambil_gram, 0, ',', '.') }} gram</td>
                 </tr>
             @endforeach
             @if($transactions->isEmpty())

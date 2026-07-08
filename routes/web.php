@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\KioskController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\MachineController;
 use App\Http\Controllers\MustahikController;
@@ -12,6 +13,9 @@ use App\Services\WhatsAppService;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('landing.index');
+
+// ── Kiosk ATM Beras (tampilan fullscreen untuk Raspberry Pi) ─────────────────
+Route::get('/kiosk', [KioskController::class, 'index'])->name('kiosk.index');
 
 Route::post('/cek-penerima', [LandingController::class, 'checkRecipient'])
     ->name('landing.check');
@@ -105,7 +109,8 @@ Route::middleware('admin')->group(function () {
         'toggleStatus',
     ])->name('mesin.toggle-status');
 
-    Route::patch(
+    Route::match(
+        ['PUT', 'PATCH'],
         '/mesin/{machine}/jadwal',
         [MachineController::class, 'updateJadwal']
     )->name('mesin.update-jadwal');
@@ -114,6 +119,11 @@ Route::middleware('admin')->group(function () {
         '/mustahik-aktif',
         [MustahikController::class, 'active']
     )->name('mustahik.active');
+
+    Route::get(
+        '/riwayat-pengambilan',
+        [MustahikController::class, 'riwayat']
+    )->name('mustahik.riwayat');
 
     Route::resource(
         'mustahik',

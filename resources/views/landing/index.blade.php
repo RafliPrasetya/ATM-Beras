@@ -14,43 +14,42 @@
                 <div class="hero-text">
 
                     <div class="hero-badge">
-                        Sistem Berbasis IoT dan RFID
+                        Program Berbagi Zakat & Amal Lazismu Rogojampi
                     </div>
 
                     <h1>
-                        ATM Beras Rogojampi untuk Distribusi Beras yang Lebih Terdata
+                        Mengalirkan Kebaikan, Membantu Sesama Melalui ATM Beras Mandiri
                     </h1>
 
                     <p>
-                        Website ini digunakan untuk membantu proses monitoring, pendataan penerima,
-                        pengecekan jadwal, dan pengelolaan distribusi beras berbasis RFID secara lebih mudah.
+                        Hadir untuk mempermudah mustahik dan jamaah memeriksa jatah serta jadwal pengambilan beras secara mandiri, sekaligus menjadi jembatan berkah bagi donatur untuk berbagi secara adil dan transparan.
                     </p>
 
                     <div class="hero-actions">
                         <a href="#cek-status" class="btn-hero-primary">
-                            Cek Status Penerima
+                            Cek Jadwal Pengambilan
                         </a>
 
                         <a href="#berita" class="btn-hero-secondary">
-                            Lihat Berita
+                            Lihat Berita Kegiatan
                         </a>
                     </div>
 
                     <div class="hero-features">
 
                         <div class="hero-feature-item">
-                            <strong>RFID</strong>
-                            <span>Identifikasi penerima</span>
+                            <strong>Ambil Mandiri</strong>
+                            <span>Cukup tempel kartu untuk mengambil jatah beras keluarga Anda.</span>
                         </div>
 
                         <div class="hero-feature-item">
-                            <strong>IoT</strong>
-                            <span>Monitoring mesin</span>
+                            <strong>Penyaluran Adil</strong>
+                            <span>Menjamin setiap keluarga menerima jatah beras yang sama rata.</span>
                         </div>
 
                         <div class="hero-feature-item">
-                            <strong>Real-time</strong>
-                            <span>Data lebih cepat</span>
+                            <strong>Aman & Nyata</strong>
+                            <span>Bantuan tersalurkan langsung secara teratur dan transparan bagi semua.</span>
                         </div>
 
                     </div>
@@ -59,35 +58,8 @@
 
                 <div class="hero-visual">
 
-                    <div class="atm-card">
-
-                        <div class="atm-top">
-                            <span>ATM Beras</span>
-                        </div>
-
-                        <div class="atm-body">
-
-                            <div class="atm-screen">
-                                <span>Status Mesin</span>
-                                <strong>Aktif</strong>
-                            </div>
-
-                            <div class="atm-panel">
-                                <div></div>
-                                <div></div>
-                                <div></div>
-                            </div>
-
-                            <div class="atm-output">
-                                <div class="rice-box"></div>
-                            </div>
-
-                        </div>
-
-                        <div class="atm-footer">
-                            RFID Reader
-                        </div>
-
+                    <div class="hero-image-wrapper">
+                        <img src="{{ asset('images/hero-atm-beras.png') }}" alt="ATM Beras Rogojampi - Penyaluran Zakat & Amal" class="hero-illustration">
                     </div>
 
                     <div class="rice-shape rice-shape-one"></div>
@@ -104,16 +76,15 @@
 
             <div class="check-header">
                 <span class="section-label">
-                    Self Tracking Mustahik
+                    Layanan Mustahik & Jamaah
                 </span>
 
                 <h2>
-                    Cek Status & Jadwal Penerima
+                    Cari Tahu Status & Jadwal Ambil Beras Anda
                 </h2>
 
                 <p>
-                    Masukkan NIK atau UID RFID untuk melihat data penerima, sisa jatah beras,
-                    dan informasi jadwal pengambilan.
+                    Masukkan NIK KTP Anda untuk melihat status penerimaan, ketersediaan jatah beras keluarga Anda, serta informasi jadwal pengambilan terdekat di mesin ATM Beras.
                 </p>
             </div>
 
@@ -122,11 +93,11 @@
                 <div class="check-form-area">
 
                     <h3>
-                        Cari Data Penerima
+                        Cek Status Penerima
                     </h3>
 
                     <p>
-                        Gunakan NIK atau UID RFID yang sudah terdaftar pada sistem ATM Beras Rogojampi.
+                        Gunakan NIK KTP yang sudah terdaftar pada layanan ATM Beras Rogojampi.
                     </p>
 
                     <form action="{{ route('landing.check') }}" method="POST" class="check-form">
@@ -134,11 +105,11 @@
 
                         <div class="form-group">
                             <label for="keyword">
-                                NIK / UID RFID
+                                NIK KTP Penerima
                             </label>
 
                             <input type="text" id="keyword" name="keyword" value="{{ old('keyword', $keyword ?? '') }}"
-                                placeholder="Masukkan NIK atau UID RFID">
+                                placeholder="Masukkan NIK KTP Anda">
 
                             @error('keyword')
                                 <small class="form-error">
@@ -148,12 +119,12 @@
                         </div>
 
                         <button type="submit" class="btn-check-submit">
-                            Cari Data
+                            Cek Status Jatah
                         </button>
                     </form>
 
                     <small class="check-note">
-                        Data yang ditampilkan hanya digunakan untuk kebutuhan pengecekan status penerima.
+                        Layanan pengecekan ini ditujukan untuk mempermudah mustahik memantau jatah bantuan mereka secara mandiri.
                     </small>
 
                 </div>
@@ -162,23 +133,23 @@
 
                     <div class="info-box active">
                         <div class="info-icon">
-                            ID
+                            KTP
                         </div>
 
                         <div>
                             <h4>
-                                Identifikasi Penerima
+                                Verifikasi Cepat
                             </h4>
 
                             <p>
-                                Sistem membaca data penerima berdasarkan NIK atau UID RFID.
+                                Cukup gunakan NIK KTP untuk melihat keanggotaan dan keaktifan Anda dengan mudah.
                             </p>
                         </div>
                     </div>
 
                     <div class="info-box">
                         <div class="info-icon">
-                            KG
+                            GR
                         </div>
 
                         <div>
@@ -187,14 +158,14 @@
                             </h4>
 
                             <p>
-                                Penerima dapat melihat informasi jatah beras yang tersedia.
+                                Pantau sisa jatah beras yang masih tersedia untuk didistribusikan ke keluarga Anda.
                             </p>
                         </div>
                     </div>
 
                     <div class="info-box">
                         <div class="info-icon">
-                            JD
+                            JAM
                         </div>
 
                         <div>
@@ -203,7 +174,7 @@
                             </h4>
 
                             <p>
-                                Jadwal membantu penerima mengetahui waktu pengambilan beras.
+                                Ketahui waktu mesin ATM dibuka agar Anda dapat mengambil beras tepat waktu tanpa antre lama.
                             </p>
                         </div>
                     </div>
@@ -223,7 +194,7 @@
                 </span>
 
                 <h2>
-                    Berita Seputar ATM Beras
+                    Berita Seputar Program ATM Beras
                 </h2>
 
                 <p>
@@ -298,9 +269,7 @@
                     </a>
 
                     <p class="footer-description">
-                        Sistem ATM Beras berbasis IoT dan RFID yang dikembangkan untuk membantu
-                        monitoring distribusi beras, pendataan mustahik, dan pencatatan riwayat
-                        pengambilan secara lebih terstruktur.
+                        Layanan penyaluran bantuan beras mandiri yang dikelola oleh Lazismu Rogojampi. Membantu mengalirkan zakat, infak, dan sedekah dari para donatur kepada jamaah dan mustahik secara amanah, adil, dan transparan.
                     </p>
 
                 </div>
@@ -314,25 +283,25 @@
 
                     <ul>
                         <li>
-                            <a href="Beranda">
+                            <a href="#beranda">
                                 Beranda
                             </a>
                         </li>
 
                         <li>
-                            <a href="Cek-status">
+                            <a href="#cek-status">
                                 Cek Status & Jadwal Penerima
                             </a>
                         </li>
 
                         <li>
-                            <a href="Berita">
+                            <a href="#berita">
                                 Berita
                             </a>
                         </li>
 
                         <li>
-                            <a href="Tentang">
+                            <a href="#tentang">
                                 Tentang Kami
                             </a>
                         </li>
@@ -340,35 +309,35 @@
 
                 </div>
 
-                {{-- Layanan --}}
+                {{-- Program Kebaikan --}}
                 <div class="footer-menu-area">
 
                     <h4>
-                        Layanan Sistem
+                        Program Kebaikan
                     </h4>
 
                     <ul>
                         <li>
                             <span>
-                                Self Tracking Mustahik
+                                Cek Jatah Bantuan Mandiri
                             </span>
                         </li>
 
                         <li>
                             <span>
-                                Monitoring Mesin ATM Beras
+                                Pembagian Beras Adil
                             </span>
                         </li>
 
                         <li>
                             <span>
-                                Riwayat Pengambilan Beras
+                                Penyaluran Zakat Transparan
                             </span>
                         </li>
 
                         <li>
                             <span>
-                                Manajemen Data Penerima
+                                Dukungan Mustahik Rogojampi
                             </span>
                         </li>
                     </ul>
@@ -398,7 +367,7 @@
                         </div>
 
                         <span>
-                            Rogojampi, Banyuwangi, Jawa Timur
+                            Jl. KH. Hasyim Asy'hari No.40, Pancoran Kulon, Rogojampi, Kec. Rogojampi, Kabupaten Banyuwangi, Jawa Timur 68462
                         </span>
                     </div>
 

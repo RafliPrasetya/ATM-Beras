@@ -52,14 +52,14 @@
 
         <div class="submenu {{ request()->routeIs('mustahik.*') ? 'show' : '' }}" id="submenu-mustahik">
 
-            <a href="{{ route('mustahik.active') }}"
-                class="{{ request()->routeIs('mustahik.active') ? 'submenu-active' : '' }}">
-                Daftar Mustahik Aktif
+            <a href="{{ route('mustahik.index') }}"
+                class="{{ request()->routeIs('mustahik.index') || request()->routeIs('mustahik.active') ? 'submenu-active' : '' }}">
+                Daftar Mustahik
             </a>
 
-            <a href="{{ route('mustahik.index') }}"
-                class="{{ request()->routeIs('mustahik.index') ? 'submenu-active' : '' }}">
-                Daftar Mustahik
+            <a href="{{ route('mustahik.riwayat') }}"
+                class="{{ request()->routeIs('mustahik.riwayat') ? 'submenu-active' : '' }}">
+                Riwayat Pengambilan
             </a>
 
         </div>

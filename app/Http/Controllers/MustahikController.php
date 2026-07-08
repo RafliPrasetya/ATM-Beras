@@ -74,11 +74,17 @@ class MustahikController extends Controller
         $request->validate([
             'nama' => 'required',
             'rfid_uid' => 'required|unique:mustahiks',
-            'nik' => 'required|unique:mustahiks',
+            'nik' => 'required|digits:16|unique:mustahiks',
             'no_hp' => 'nullable',
             'alamat' => 'required',
             'village_id' => 'required',
-            'jatah_beras_gram' => 'required|integer|min:1',
+            'jatah_beras_gram' => 'nullable|integer|min:0',
+        ], [
+            'nik.required' => 'NIK wajib diisi.',
+            'nik.digits' => 'NIK harus tepat 16 digit angka.',
+            'nik.unique' => 'NIK sudah terdaftar dalam sistem.',
+            'rfid_uid.required' => 'RFID UID wajib diisi.',
+            'rfid_uid.unique' => 'RFID UID sudah terdaftar dalam sistem.',
         ]);
 
         Mustahik::create([
@@ -88,7 +94,7 @@ class MustahikController extends Controller
             'no_hp' => $request->no_hp,
             'alamat' => $request->alamat,
             'village_id' => $request->village_id,
-            'jatah_beras_gram' => $request->jatah_beras_gram,
+            'jatah_beras_gram' => $request->jatah_beras_gram ?? 0,
             'status' => 'aktif',
         ]);
 
@@ -103,21 +109,18 @@ class MustahikController extends Controller
         Mustahik $mustahik
     ) {
         $request->validate([
-
             'nama' => 'required',
-
-            'rfid_uid' => 'required|unique:mustahiks,rfid_uid,'.
-                $mustahik->id,
-
-            'nik' => 'required',
-
+            'rfid_uid' => 'required|unique:mustahiks,rfid_uid,'.$mustahik->id,
+            'nik' => 'required|digits:16|unique:mustahiks,nik,'.$mustahik->id,
             'no_hp' => 'required',
-
             'alamat' => 'required',
-
             'village_id' => 'required',
-
-            // 'jatah_beras_gram' => 'required'
+        ], [
+            'nik.required' => 'NIK wajib diisi.',
+            'nik.digits' => 'NIK harus tepat 16 digit angka.',
+            'nik.unique' => 'NIK sudah terdaftar dalam sistem.',
+            'rfid_uid.required' => 'RFID UID wajib diisi.',
+            'rfid_uid.unique' => 'RFID UID sudah terdaftar dalam sistem.',
         ]);
 
         $mustahik->update(
@@ -311,5 +314,34 @@ class MustahikController extends Controller
         return $pdf->download(
             'Laporan_Pengambilan.pdf'
         );
+    }
+
+    public function riwayat(Request $request)
+    {
+        $tanggalAwal = $request->input('tanggal_awal');
+        $tanggalAkhir = $request->input('tanggal_akhir');
+
+        $query = Transaction::with(['mustahik', 'machine']);
+
+        if ($tanggalAwal) {
+            $query->whereDate('tanggal_pengambilan', '>=', $tanggalAwal);
+        }
+
+        if ($tanggalAkhir) {
+            $query->whereDate('tanggal_pengambilan', '<=', $tanggalAkhir);
+        }
+
+        $transactions = $query->latest('tanggal_pengambilan')->get();
+
+        $totalTransaksi = $transactions->count();
+        $totalBeras = $transactions->sum('jumlah_ambil_gram');
+
+        return view('admin.mustahik.riwayat', compact(
+            'transactions',
+            'tanggalAwal',
+            'tanggalAkhir',
+            'totalTransaksi',
+            'totalBeras'
+        ));
     }
 }

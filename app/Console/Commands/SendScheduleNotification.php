@@ -129,7 +129,7 @@ class SendScheduleNotification extends Command
         return "Assalamu'alaikum Bapak/Ibu {$mustahik->nama}\n\n"
             ."Jadwal pengambilan beras ATM Beras Rogojampi telah dibuka.\n\n"
             ."Tanggal:\n{$tanggal}\n\n"
-            ."Jam:\n{$jamMulai} - {$jamSelesai} WIB\n\n"
+            // ."Jam:\n{$jamMulai} - {$jamSelesai} WIB\n\n"
             ."Mesin:\n{$machine->machine_code}\n\n"
             ."Lokasi:\n{$machine->lokasi_penempatan}\n\n"
             ."Silakan datang sesuai jadwal untuk melakukan pengambilan beras.\n\n"

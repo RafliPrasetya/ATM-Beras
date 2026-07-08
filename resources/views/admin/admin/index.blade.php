@@ -312,7 +312,7 @@
                                 </label>
 
                                 <input type="text" name="nama" class="form-control" value="{{ $admin->nama }}"
-                                    required>
+                                    required placeholder="Masukkan nama lengkap admin">
 
                             </div>
 
@@ -323,7 +323,7 @@
                                 </label>
 
                                 <input type="text" name="username" class="form-control" value="{{ $admin->username }}"
-                                    required>
+                                    required placeholder="Masukkan username admin">
 
                             </div>
 
@@ -333,7 +333,8 @@
                                     Email
                                 </label>
 
-                                <input type="email" name="email" class="form-control" value="{{ $admin->email }}">
+                                <input type="email" name="email" class="form-control" value="{{ $admin->email }}"
+                                    placeholder="Masukkan email admin">
 
                             </div>
 
@@ -343,7 +344,8 @@
                                     Password Baru
                                 </label>
 
-                                <input type="password" name="password" class="form-control">
+                                <input type="password" name="password" class="form-control"
+                                    minlength="6" placeholder="Masukkan password baru (min. 6 karakter)">
 
                             </div>
 
@@ -409,7 +411,8 @@
                                 Nama
                             </label>
 
-                            <input type="text" name="nama" class="form-control" required>
+                            <input type="text" name="nama" class="form-control" required
+                                placeholder="Masukkan nama lengkap admin">
 
                         </div>
 
@@ -419,7 +422,8 @@
                                 Username
                             </label>
 
-                            <input type="text" name="username" class="form-control" required>
+                            <input type="text" name="username" class="form-control" required
+                                placeholder="Masukkan username admin">
 
                         </div>
 
@@ -429,7 +433,8 @@
                                 Email
                             </label>
 
-                            <input type="email" name="email" class="form-control">
+                            <input type="email" name="email" class="form-control"
+                                placeholder="Masukkan email admin">
 
                         </div>
 
@@ -439,7 +444,8 @@
                                 Password
                             </label>
 
-                            <input type="password" name="password" class="form-control" required>
+                            <input type="password" name="password" class="form-control" required
+                                minlength="6" placeholder="Masukkan password (minimal 6 karakter)">
 
                         </div>
 

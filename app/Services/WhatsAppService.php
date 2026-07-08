@@ -38,15 +38,28 @@ class WhatsAppService
                 ]);
 
             if ($response->successful()) {
+                $responseData = $response->json();
 
-                Log::info('WA BERHASIL', [
+                if (isset($responseData['status']) && $responseData['status'] === true) {
+                    Log::info('WA BERHASIL', [
+                        'target' => $target,
+                        'response' => $responseData
+                    ]);
+
+                    return [
+                        'success' => true,
+                        'response' => $responseData
+                    ];
+                }
+
+                Log::warning('WA GAGAL (API ERROR)', [
                     'target' => $target,
-                    'response' => $response->json()
+                    'response' => $responseData
                 ]);
 
                 return [
-                    'success' => true,
-                    'response' => $response->json()
+                    'success' => false,
+                    'response' => $responseData
                 ];
             }
 
