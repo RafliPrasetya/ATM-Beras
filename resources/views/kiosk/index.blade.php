@@ -680,7 +680,7 @@
 
 {{-- ── FOOTER ─────────────────────────────────────────────────────── --}}
 <footer class="kiosk-footer">
-    <div class="footer-left">ATM Beras v1.0 · Sistem Distribusi Beras LAZNAS</div>
+    <div class="footer-left">ATM Beras v1.0 · Sistem Distribusi Beras LAZISMU ROGOJAMPI</div>
     <div class="shortcut-hint">
         Input: Numpad <kbd>1</kbd>–<kbd>9</kbd> = Pilih opsi · <kbd>Enter</kbd> = Konfirmasi · <kbd>Esc</kbd> = Batal
     </div>
