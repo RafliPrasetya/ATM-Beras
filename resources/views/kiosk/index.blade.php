@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ATM Beras Rogojampi — Kiosk</title>
-    <link rel="shortcut icon" href="{{ asset('storage/images/poli_lazismu.png') }}" type="image/png">
+        <link rel="shortcut icon" href="{{ asset('storage/images/poli_lazismu.png') }}" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -136,6 +136,35 @@
             50%       { opacity: 0.6; transform: scale(0.85); }
         }
         .status-text { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+        /* ── Fullscreen Button ── */
+        .fullscreen-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-left: 6px;
+            padding: 0;
+            outline: none;
+        }
+        .fullscreen-btn:hover {
+            background: rgba(245, 166, 35, 0.15);
+            border-color: var(--accent-gold);
+            color: var(--text-primary);
+            box-shadow: 0 0 12px rgba(245, 166, 35, 0.25);
+            transform: scale(1.05);
+        }
+        .fullscreen-btn svg {
+            width: 15px;
+            height: 15px;
+        }
 
         /* ── Clock ── */
         .kiosk-clock {
@@ -558,6 +587,11 @@
     <div class="kiosk-status" id="connection-status">
         <div class="status-dot" id="status-dot"></div>
         <span class="status-text" id="status-text">Terhubung</span>
+        <button id="btn-fullscreen" class="fullscreen-btn" title="Layar Penuh" onclick="toggleFullscreen()">
+            <svg id="fullscreen-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+        </button>
     </div>
 
     <div class="kiosk-clock">
@@ -633,7 +667,7 @@
             <div class="confirm-section">
                 <div class="selected-info" id="selected-info">Tekan angka untuk memilih jumlah</div>
                 <div class="confirm-hint">
-                    Tekan <kbd>Enter</kbd> untuk konfirmasi · <kbd>Esc</kbd> untuk batal
+                    Tekan <kbd>Enter</kbd> untuk konfirmasi · <kbd>Backspace</kbd> untuk batal
                 </div>
             </div>
         </div>
@@ -683,7 +717,7 @@
 <footer class="kiosk-footer">
     <div class="footer-left">ATM Beras v1.0 · Sistem Distribusi Beras LAZISMU ROGOJAMPI</div>
     <div class="shortcut-hint">
-        Input: Numpad <kbd>1</kbd>–<kbd>9</kbd> = Pilih opsi · <kbd>Enter</kbd> = Konfirmasi · <kbd>Esc</kbd> = Batal
+        Input: Numpad <kbd>1</kbd>–<kbd>9</kbd> = Pilih opsi · <kbd>Enter</kbd> = Konfirmasi · <kbd>Backspace</kbd> = Batal
     </div>
     <div class="footer-right" id="machine-info">Mesin: —</div>
 </footer>
@@ -967,7 +1001,7 @@ document.addEventListener('keydown', (e) => {
     }
 
     // Escape → batalkan dan kembali ke idle
-    if (e.key === 'Escape') {
+    if (e.key === 'Backspace') {
         resetToIdle();
     }
 });
@@ -1026,6 +1060,40 @@ function handlePythonState(state) {
     }
 }
 
+// ── FULLSCREEN TOGGLE LOGIC ────────────────────────────────────────
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().then(() => {
+            updateFullscreenIcon(true);
+        }).catch(err => {
+            console.error(`Gagal mengaktifkan fullscreen: ${err.message}`);
+        });
+    } else {
+        document.exitFullscreen().then(() => {
+            updateFullscreenIcon(false);
+        }).catch(err => {
+            console.error(`Gagal keluar dari fullscreen: ${err.message}`);
+        });
+    }
+}
+
+function updateFullscreenIcon(isFullscreen) {
+    const icon = document.getElementById('fullscreen-icon');
+    if (!icon) return;
+    
+    if (isFullscreen) {
+        // Exit fullscreen icon (arrows pointing inward)
+        icon.innerHTML = `<path d="M4 14h6v6m0-6l-7 7m17-7h-6v6m0-6l7 7M4 10h6V4m0 6L3 3m17 7h-6V4m0 6l7-7"/>`;
+    } else {
+        // Fullscreen icon (arrows pointing outward)
+        icon.innerHTML = `<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>`;
+    }
+}
+
+// Deteksi perubahan fullscreen manual (misal tekan F11)
+document.addEventListener('fullscreenchange', () => {
+    updateFullscreenIcon(!!document.fullscreenElement);
+});
 
 // Mulai polling
 setInterval(pollPythonState, POLL_INTERVAL_MS);
