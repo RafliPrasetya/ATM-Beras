@@ -753,6 +753,7 @@ let errorToastTimer  = null;
 let transactionInProgress = false;  // Flag: cegah polling reset saat transaksi berjalan
 let activeMachineToken = MACHINE_TOKEN; // Token aktif yang sinkron dari Python
 let activeMachineId    = MACHINE_ID;    // ID mesin aktif yang sinkron dari Python
+let activeRfidMode     = 'rc522';       // Mode RFID aktif: rc522 | usb | simulation
 
 // ── DOM HELPERS ───────────────────────────────────────────────────
 const screens = {
@@ -973,6 +974,7 @@ async function resetToIdle() {
     currentMustahik = null;
     currentRfidUid  = null;
     selectedKg      = null;
+    rfidBuffer      = ''; // Clear buffer pembacaan USB RFID
     showScreen('idle');
 
     // Beritahu Python untuk reset state-nya juga
@@ -981,8 +983,31 @@ async function resetToIdle() {
     } catch (_) {}
 }
 
-// ── INPUT KEYBOARD (Numpad) ───────────────────────────────────────
+let rfidBuffer = '';
+let rfidTimeout = null;
+
+// ── INPUT KEYBOARD (Numpad & USB RFID Reader) ──────────────────────
 document.addEventListener('keydown', (e) => {
+    // 1. Baca input USB RFID Reader (Keyboard Emulator) jika di layar idle
+    if (currentScreen === 'idle') {
+        // USB Reader mengetik angka 0-9
+        if (e.key.match(/^[0-9]$/)) {
+            clearTimeout(rfidTimeout);
+            rfidBuffer += e.key;
+            // Reset buffer jika ada jeda pengetikan lebih dari 400ms (mencegah ketikan manual lambat)
+            rfidTimeout = setTimeout(() => { rfidBuffer = ''; }, 400);
+        } else if (e.key === 'Enter' && rfidBuffer.length >= 4) {
+            const scannedUid = rfidBuffer;
+            rfidBuffer = '';
+            clearTimeout(rfidTimeout);
+            
+            console.log('[ATM] Kartu terbaca via USB Reader, UID:', scannedUid);
+            // Panggil fungsi validasi langsung dari browser
+            validateUsbRfid(scannedUid);
+        }
+        return;
+    }
+
     if (currentScreen !== 'validated') return;
 
     // Angka 1–9 → pilih opsi ke-n
@@ -1008,6 +1033,49 @@ document.addEventListener('keydown', (e) => {
         resetToIdle();
     }
 });
+
+// ── VALIDASI USB RFID ──────────────────────────────────────────────
+async function validateUsbRfid(uid) {
+    showScreen('processing');
+    try {
+        const resp = await fetch(`${API_BASE_URL}/api/rfid/validate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${activeMachineToken}`,
+            },
+            body: JSON.stringify({ rfid_uid: uid, machine_id: activeMachineId }),
+        });
+
+        const json = await resp.json();
+
+        if (resp.ok && json.status) {
+            currentMustahik = json.data;
+            currentRfidUid  = uid;
+            populateValidatedScreen(json.data);
+            showScreen('validated');
+            
+            // Sinkronkan state ke Python Flask agar Python juga tahu kita di step pilih_jumlah
+            await fetch(`${PYTHON_LOCAL_URL}/state-sync`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    step: "pilih_jumlah",
+                    rfid_uid: uid,
+                    mustahik: json.data
+                })
+            }).catch(() => {});
+        } else {
+            showScreen('idle');
+            showErrorToast(`⚠ ${json.message || 'Kartu tidak terdaftar'}`);
+        }
+    } catch (err) {
+        showScreen('idle');
+        showErrorToast('⚠ Gagal menghubungi server validasi');
+        console.error('[ATM] Error validasi USB RFID:', err);
+    }
+}
 
 // ── POLLING STATE DARI PYTHON (localhost:8765) ────────────────────
 let pollFailCount  = 0;
@@ -1047,6 +1115,9 @@ function handlePythonState(state) {
     }
     if (state.machine_id) {
         activeMachineId = state.machine_id;
+    }
+    if (state.rfid_mode) {
+        activeRfidMode = state.rfid_mode;
     }
 
     // Python bilang: RFID sudah divalidasi, tampilkan info mustahik

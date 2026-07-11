@@ -29,20 +29,33 @@ import requests
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-# ─── Coba import library GPIO dan RFID (hanya ada di Raspberry Pi) ───────────
+# Mode RFID yang digunakan:
+#   "rc522"      : Menggunakan sensor RC522 (GPIO SPI / kabel jumper)
+#   "usb"        : Menggunakan USB RFID Reader (Keyboard Emulator / colok port USB)
+#   "simulation" : Simulasi otomatis kartu dummy
+RFID_MODE = "usb"
+
+# ─── Coba import library GPIO (untuk motor dispenser) ────────────────────────
 try:
+    if RFID_MODE == "simulation":
+        raise ImportError
     import RPi.GPIO as GPIO
     GPIO_AVAILABLE = True
 except ImportError:
     GPIO_AVAILABLE = False
-    print("[WARN] RPi.GPIO tidak tersedia — mode SIMULASI aktif (untuk development di PC)")
+    print("[WARN] RPi.GPIO tidak tersedia atau dinonaktifkan — motor akan disimulasikan")
 
+# ─── Coba import library RFID RC522 (hanya untuk mode rc522) ──────────────────
 try:
+    if RFID_MODE != "rc522":
+        raise ImportError
     from mfrc522 import SimpleMFRC522
     RFID_AVAILABLE = True
 except ImportError:
     RFID_AVAILABLE = False
-    print("[WARN] mfrc522 tidak tersedia — RFID akan disimulasikan")
+    print("[WARN] RFID RC522 dinonaktifkan atau library tidak tersedia")
+
+
 
 # ─── LOGGING ─────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -144,10 +157,16 @@ def rfid_loop():
     """Loop utama: baca RFID → panggil API → update state."""
     log.info("Thread RFID dimulai")
 
+    if RFID_MODE == "usb":
+        log.info("[RFID] Mode USB aktif. Thread RFID dinonaktifkan, menunggu input dari browser...")
+        while True:
+            time.sleep(1)
+
     if RFID_AVAILABLE:
         reader = SimpleMFRC522()
     else:
         reader = None
+
 
     while True:
         current = get_state()
@@ -230,13 +249,41 @@ def rfid_loop():
 app = Flask(__name__)
 CORS(app)  # Izinkan request dari Chromium (beda origin: localhost vs server URL)
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Private-Network"] = "true"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, Access-Control-Allow-Private-Network"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    return response
+
+
 @app.route("/state", methods=["GET"])
 def api_get_state():
     """Chromium polling state ini setiap 500ms untuk update tampilan."""
     res = get_state()
     res["machine_token"] = MACHINE_TOKEN
     res["machine_id"] = MACHINE_ID
+    res["rfid_mode"] = RFID_MODE
     return jsonify(res)
+
+@app.route("/state-sync", methods=["POST"])
+def api_state_sync():
+    """Sinkronisasi state dari browser jika browser melakukan pembacaan RFID sendiri (mode USB)."""
+    try:
+        data = request.get_json(silent=True) or {}
+        update_state(
+            step=data.get("step", "scan_rfid"),
+            rfid_uid=data.get("rfid_uid"),
+            mustahik=data.get("mustahik"),
+            pesan=data.get("pesan", "Sinkronisasi browser"),
+            error=None
+        )
+        log.info(f"[FLASK] State disinkronkan dari browser: {data.get('step')}")
+        return jsonify({"success": True})
+    except Exception as e:
+        log.error(f"[FLASK] Gagal sinkronisasi state: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 
 @app.route("/activate-motor", methods=["POST"])
