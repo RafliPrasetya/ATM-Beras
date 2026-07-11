@@ -45,7 +45,7 @@ class RfidValidationService
         $mustahik = Mustahik::where('rfid_uid', $rfidUid)->first();
 
         if (! $mustahik) {
-            return $fail('RFID tidak terdaftar dalam sistem');
+            return $fail('Mustahik tidak terdaftar dalam sistem');
         }
 
         // ── B. Mustahik aktif ─────────────────────────────────────────────

@@ -659,9 +659,9 @@
                 </div>
             </div>
 
-            <h2 class="idle-title">Tempelkan Kartu<br>RFID Anda</h2>
+            <h2 class="idle-title">Tempelkan Kartu<br>E-KTP Anda</h2>
             <p class="idle-subtitle">
-                Dekatkan kartu identitas RFID ke reader<br>
+                Dekatkan kartu E-KTP Anda ke reader<br>
                 yang tersedia di samping perangkat ini
             </p>
 
