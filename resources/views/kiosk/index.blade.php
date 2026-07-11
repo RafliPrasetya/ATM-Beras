@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ATM Beras Rogojampi — Kiosk</title>
-        <link rel="shortcut icon" href="{{ asset('storage/images/poli_lazismu.png') }}" type="image/png">
+            <link rel="shortcut icon" href="{{ asset('storage/images/poli_lazismu.png') }}" type="image/png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -750,6 +751,8 @@ let allowedOptions   = [];
 let countdownTimer   = null;
 let errorToastTimer  = null;
 let transactionInProgress = false;  // Flag: cegah polling reset saat transaksi berjalan
+let activeMachineToken = MACHINE_TOKEN; // Token aktif yang sinkron dari Python
+let activeMachineId    = MACHINE_ID;    // ID mesin aktif yang sinkron dari Python
 
 // ── DOM HELPERS ───────────────────────────────────────────────────
 const screens = {
@@ -852,7 +855,7 @@ async function konfirmasiTransaksi() {
 
     const payload = {
         rfid_uid:    rfidUid,
-        machine_id:  MACHINE_ID,
+        machine_id:  activeMachineId,
         jumlah_ambil: pilihKg,
     };
 
@@ -868,7 +871,7 @@ async function konfirmasiTransaksi() {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'Authorization': `Bearer ${MACHINE_TOKEN}`,
+                'Authorization': `Bearer ${activeMachineToken}`,
             },
             body: JSON.stringify(payload),
         });
@@ -1038,6 +1041,14 @@ async function pollPythonState() {
 }
 
 function handlePythonState(state) {
+    // Sinkronkan token dan ID mesin secara dinamis dari Python
+    if (state.machine_token) {
+        activeMachineToken = state.machine_token;
+    }
+    if (state.machine_id) {
+        activeMachineId = state.machine_id;
+    }
+
     // Python bilang: RFID sudah divalidasi, tampilkan info mustahik
     if (state.step === 'pilih_jumlah' && currentScreen === 'idle' && state.mustahik) {
         currentMustahik = state.mustahik;

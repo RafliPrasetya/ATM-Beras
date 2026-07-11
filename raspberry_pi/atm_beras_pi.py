@@ -55,8 +55,8 @@ log = logging.getLogger("atm-beras")
 # ═══════════════════════════════════════════════════════════════════════════════
 # KONFIGURASI — WAJIB DIISI SESUAI DATABASE
 # ═══════════════════════════════════════════════════════════════════════════════
-SERVER_URL    = os.getenv("ATM_SERVER_URL",   "http://localhost:8000")    # URL Laravel (ganti ke URL hosting saat deploy)
-MACHINE_TOKEN = os.getenv("ATM_TOKEN",        "IXvt2v9OxyZyMkWbQOBXRmfpDbgdGtsSjQzcMww7KUCTm9AzZteL7w9GKNyTN81f")  # dari tabel machine_tokens
+SERVER_URL    = os.getenv("ATM_SERVER_URL",   "https://lazismurogojampi.com")    # URL Laravel (ganti ke URL hosting saat deploy)
+MACHINE_TOKEN = os.getenv("ATM_TOKEN",        "LxhXb6hBVe5uMzJ9rKRVvGBl1FZedODGv6tBup5X57nG7wAIUgLSb0BcpSj79ZjJ")  # dari tabel machine_tokens
 MACHINE_ID    = int(os.getenv("ATM_MACHINE_ID", "1"))                   # ID mesin di DB
 FLASK_PORT    = int(os.getenv("ATM_FLASK_PORT", "8765"))                # Port lokal Flask
 
@@ -167,7 +167,7 @@ def rfid_loop():
                 # Simulasi: tunggu 5 detik lalu pakai UID dummy
                 log.info("[SIMULASI] Menunggu 5s lalu scan UID dummy...")
                 time.sleep(5)
-                rfid_uid = "5621453258"       # UID simulasi
+                rfid_uid = "4586545862"       # UID simulasi
 
             log.info(f"Kartu terbaca: UID={rfid_uid}")
             update_state(error=None)
@@ -233,7 +233,11 @@ CORS(app)  # Izinkan request dari Chromium (beda origin: localhost vs server URL
 @app.route("/state", methods=["GET"])
 def api_get_state():
     """Chromium polling state ini setiap 500ms untuk update tampilan."""
-    return jsonify(get_state())
+    res = get_state()
+    res["machine_token"] = MACHINE_TOKEN
+    res["machine_id"] = MACHINE_ID
+    return jsonify(res)
+
 
 @app.route("/activate-motor", methods=["POST"])
 def api_activate_motor():
