@@ -167,6 +167,41 @@
             height: 15px;
         }
 
+        /* ── Fullscreen Warning Floating Banner ── */
+        .fullscreen-warning {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            z-index: 9999;
+            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.5);
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            animation: bounce-warning 1s infinite alternate;
+            transition: var(--transition);
+        }
+        .fullscreen-warning:hover {
+            transform: translate(-50%, -2px) scale(1.03);
+            box-shadow: 0 12px 35px rgba(231, 76, 60, 0.6);
+            background: linear-gradient(135deg, #ff5c4c, #d64535);
+        }
+        @keyframes bounce-warning {
+            from { transform: translate(-50%, 0); }
+            to   { transform: translate(-50%, -6px); }
+        }
+
+
         /* ── Clock ── */
         .kiosk-clock {
             text-align: right;
@@ -714,6 +749,11 @@
 
 </main>
 
+{{-- ── FULLSCREEN WARNING FLOATING BANNER ─────────────────────────── --}}
+<div id="fullscreen-warning" class="fullscreen-warning" onclick="toggleFullscreen()" style="display: none;">
+    <span>🖥️ Layar tidak Fullscreen · Klik di sini untuk memulihkan</span>
+</div>
+
 {{-- ── FOOTER ─────────────────────────────────────────────────────── --}}
 <footer class="kiosk-footer">
     <div class="footer-left">ATM Beras v1.0 · Sistem Distribusi Beras LAZISMU ROGOJAMPI</div>
@@ -1144,6 +1184,11 @@ function handlePythonState(state) {
 
 // ── FULLSCREEN TOGGLE LOGIC ────────────────────────────────────────
 function toggleFullscreen() {
+    // Hilangkan fokus dari elemen aktif agar tombol Enter dari RFID reader tidak menekan tombol fullscreen lagi
+    if (document.activeElement) {
+        document.activeElement.blur();
+    }
+
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().then(() => {
             updateFullscreenIcon(true);
@@ -1174,7 +1219,14 @@ function updateFullscreenIcon(isFullscreen) {
 
 // Deteksi perubahan fullscreen manual (misal tekan F11)
 document.addEventListener('fullscreenchange', () => {
-    updateFullscreenIcon(!!document.fullscreenElement);
+    const isFullscreen = !!document.fullscreenElement;
+    updateFullscreenIcon(isFullscreen);
+
+    // Tampilkan banner peringatan jika tidak dalam mode fullscreen
+    const warningEl = document.getElementById('fullscreen-warning');
+    if (warningEl) {
+        warningEl.style.display = isFullscreen ? 'none' : 'flex';
+    }
 });
 
 // Mulai polling
