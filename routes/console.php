@@ -9,4 +9,4 @@ Artisan::command('inspire', function () {
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('atm:send-whatsapp-schedule')->everyMinute();
+Schedule::command('atm:send-whatsapp-schedule')->everyFifteenMinutes();
