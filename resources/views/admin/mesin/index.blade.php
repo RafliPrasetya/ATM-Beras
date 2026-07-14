@@ -442,7 +442,7 @@
 
                                                             <input type="text" name="machine_code" class="form-control"
                                                                 value="{{ $machine->machine_code }}" required
-                                                                placeholder="Contoh: MESIN-01">
+                                                                placeholder="Masukkan ID Mesin">
 
                                                         </div>
 
@@ -732,7 +732,7 @@
                                         <label>ID Mesin</label>
 
                                         <input type="text" name="machine_code" class="form-control" required
-                                            placeholder="Contoh: MESIN-01">
+                                            placeholder="Masukkan ID Mesin">
 
                                     </div>
 
