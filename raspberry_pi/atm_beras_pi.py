@@ -49,7 +49,7 @@ except ImportError:
 try:
     if RFID_MODE != "rc522":
         raise ImportError
-    from mfrc522 import SimpleMFRC522
+    from mfrc522 import SimpleMFRC522  # type: ignore
     RFID_AVAILABLE = True
 except ImportError:
     RFID_AVAILABLE = False

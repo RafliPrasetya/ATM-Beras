@@ -10,7 +10,7 @@ requests==2.32.3
 
 # Library RFID RC522 (hanya dibutuhkan di Raspberry Pi)
 # Di PC development, baris ini bisa di-comment
-mfrc522==0.0.7
+# mfrc522==0.0.7
 
 # GPIO Raspberry Pi (otomatis tersedia di Raspberry Pi OS)
 # Di PC development, baris ini bisa di-comment
