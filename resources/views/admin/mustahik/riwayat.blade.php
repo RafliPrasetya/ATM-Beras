@@ -94,8 +94,8 @@
 
                     <div class="col-md-8">
                         <div class="gap-2 d-flex align-items-center flex-wrap justify-content-md-end">
-                            <input type="date" class="form-control" style="max-width: 180px;" id="tanggal_awal">
-                            <input type="date" class="form-control" style="max-width: 180px;" id="tanggal_akhir">
+                            <input type="date" class="form-control" style="max-width: 180px;" id="tanggal_awal" value="{{ $tanggalAwal }}">
+                            <input type="date" class="form-control" style="max-width: 180px;" id="tanggal_akhir" value="{{ $tanggalAkhir }}">
                             <button class="text-white btn btn-warning px-4" onclick="filterLaporanPengambilan()">
                                 Cari
                             </button>
@@ -117,7 +117,6 @@
                                 <th>Mustahik</th>
                                 <th>Mesin</th>
                                 <th>Jumlah Ambil</th>
-                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -136,15 +135,10 @@
                                     <td>
                                         {{ number_format($transaction->jumlah_ambil_gram) }} gram
                                     </td>
-                                    <td>
-                                        <span class="badge badge-success">
-                                            Berhasil
-                                        </span>
-                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="py-5 text-center text-muted">
+                                    <td colspan="4" class="py-5 text-center text-muted">
                                         <i class="bi bi-inbox display-4 d-block mb-3" style="opacity: 0.3;"></i>
                                         Belum ada data transaksi
                                     </td>
@@ -179,34 +173,14 @@
         function filterLaporanPengambilan() {
             const tanggalAwal = document.getElementById('tanggal_awal').value;
             const tanggalAkhir = document.getElementById('tanggal_akhir').value;
-            const rows = document.querySelectorAll('.laporan-row');
-
-            let totalTransaksi = 0;
-            let totalBeras = 0;
-
-            rows.forEach(row => {
-                const tanggal = row.dataset.date;
-                let tampil = true;
-
-                if (tanggalAwal && tanggal < tanggalAwal) {
-                    tampil = false;
-                }
-
-                if (tanggalAkhir && tanggal > tanggalAkhir) {
-                    tampil = false;
-                }
-
-                if (tampil) {
-                    row.style.display = '';
-                    totalTransaksi++;
-                    totalBeras += parseInt(row.dataset.gram);
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            document.getElementById('totalTransaksi').innerText = totalTransaksi;
-            document.getElementById('totalBeras').innerText = totalBeras.toLocaleString('id-ID');
+            let url = "{{ route('mustahik.riwayat') }}";
+            let params = [];
+            if (tanggalAwal) params.push('tanggal_awal=' + encodeURIComponent(tanggalAwal));
+            if (tanggalAkhir) params.push('tanggal_akhir=' + encodeURIComponent(tanggalAkhir));
+            if (params.length > 0) {
+                url += '?' + params.join('&');
+            }
+            window.location.href = url;
         }
 
         function downloadLaporanPengambilan() {

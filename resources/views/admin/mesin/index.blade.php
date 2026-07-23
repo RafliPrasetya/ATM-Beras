@@ -224,7 +224,7 @@
 
         @php
             $lowStockMachines = $machines->filter(function($machine) {
-                return $machine->stok_beras_kg <= 10;
+                return $machine->stok_beras_kg <= 10 && $machine->status_mesin === 'aktif';
             });
         @endphp
 
@@ -426,11 +426,16 @@
 
                                             <div class="modal-content">
 
-                                                <div class="modal-header">
+                                                 <div class="modal-header">
 
-                                                    <h5>Edit Mesin</h5>
+                                <h5 class="modal-title">
+                                    Edit Mesin
+                                </h5>
 
-                                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                                </button>
+
+                            </div>
 
                                                 <div class="modal-body">
 
@@ -657,7 +662,12 @@
 
                             <div class="modal-header">
 
-                                <h5>Tambah Mesin</h5>
+                                <h5 class="modal-title">
+                                Tambah Mesin
+                            </h5>
+
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"> 
+                            </button>
 
                             </div>
 
@@ -676,7 +686,7 @@
                                             </option>
 
                                             @foreach ($provinces as $province)
-                                                <option value="{{ $province->id }}">
+                                                <option value="{{ $province->id }}" {{ $province->id == 35 ? 'selected' : '' }}>
                                                     {{ $province->name }}
                                                 </option>
                                             @endforeach
@@ -848,6 +858,60 @@
                     });
 
             });
+
+        // Konfigurasi default wilayah (Jawa Timur & Banyuwangi) - mudah dikembalikan jika tidak dibutuhkan
+        const ENABLE_DEFAULT_LOCATION_MESIN = true;
+        const DEFAULT_PROVINCE_ID_MESIN = '35';   // Jawa Timur
+        const DEFAULT_REGENCY_ID_MESIN = '3510';  // Kabupaten Banyuwangi
+
+        function applyDefaultLocationMesin() {
+            if (!ENABLE_DEFAULT_LOCATION_MESIN) return;
+
+            const provinceElem = document.getElementById('province');
+            if (provinceElem && DEFAULT_PROVINCE_ID_MESIN) {
+                provinceElem.value = DEFAULT_PROVINCE_ID_MESIN;
+
+                fetch('/regencies/' + DEFAULT_PROVINCE_ID_MESIN)
+                    .then(res => res.json())
+                    .then(data => {
+                        let html = '<option value="">Pilih Kabupaten</option>';
+                        data.forEach(item => {
+                            const isSelected = item.id == DEFAULT_REGENCY_ID_MESIN ? 'selected' : '';
+                            html += `<option value="${item.id}" ${isSelected}>${item.name}</option>`;
+                        });
+                        const regencyElem = document.getElementById('regency');
+                        if (regencyElem) {
+                            regencyElem.innerHTML = html;
+                        }
+
+                        if (DEFAULT_REGENCY_ID_MESIN) {
+                            return fetch('/districts/' + DEFAULT_REGENCY_ID_MESIN);
+                        }
+                    })
+                    .then(res => res ? res.json() : null)
+                    .then(data => {
+                        if (!data) return;
+                        let html = '<option value="">Pilih Kecamatan</option>';
+                        data.forEach(item => {
+                            html += `<option value="${item.id}">${item.name}</option>`;
+                        });
+                        const districtElem = document.getElementById('district');
+                        if (districtElem) {
+                            districtElem.innerHTML = html;
+                        }
+                        const villageElem = document.getElementById('village');
+                        if (villageElem) {
+                            villageElem.innerHTML = '<option value="">Pilih Desa</option>';
+                        }
+                    });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', applyDefaultLocationMesin);
+        const modalTambahMesinElem = document.getElementById('modalTambah');
+        if (modalTambahMesinElem) {
+            modalTambahMesinElem.addEventListener('show.bs.modal', applyDefaultLocationMesin);
+        }
     </script>
     <script>
         document.querySelectorAll('.edit-province')

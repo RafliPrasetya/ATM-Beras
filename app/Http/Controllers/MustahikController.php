@@ -53,7 +53,7 @@ class MustahikController extends Controller
         ];
 
         $pageTitle = $activeOnly
-            ? 'Daftar Mustahik Aktif'
+            ? 'Daftar Penerima'
             : 'Daftar Mustahik';
 
         return view(
@@ -145,11 +145,9 @@ class MustahikController extends Controller
 
     public function destroy(Mustahik $mustahik)
     {
-        $mustahik->delete();
-
         return back()->with(
-            'success',
-            'Data mustahik berhasil dihapus'
+            'error',
+            'Fitur hapus mustahik telah dinonaktifkan.'
         );
     }
 
@@ -320,6 +318,12 @@ class MustahikController extends Controller
     {
         $tanggalAwal = $request->input('tanggal_awal');
         $tanggalAkhir = $request->input('tanggal_akhir');
+
+        // Default ke periode bulan berjalan jika tidak ada filter khusus yang dikirim
+        if (!$request->has('tanggal_awal') && !$request->has('tanggal_akhir')) {
+            $tanggalAwal = Carbon::now()->startOfMonth()->format('Y-m-d');
+            $tanggalAkhir = Carbon::now()->endOfMonth()->format('Y-m-d');
+        }
 
         $query = Transaction::with(['mustahik', 'machine']);
 

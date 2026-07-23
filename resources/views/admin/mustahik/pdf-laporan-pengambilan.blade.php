@@ -70,8 +70,6 @@
 
                 <th>Jumlah Ambil</th>
 
-                <th>Status</th>
-
             </tr>
 
         </thead>
@@ -105,10 +103,6 @@
 
                         gram
 
-                    </td>
-
-                    <td>
-                        Berhasil
                     </td>
 
                 </tr>

@@ -769,21 +769,7 @@
 
                             </div>
 
-                            @unless ($activeOnly)
-                                <form action="{{ route('mustahik.destroy', $mustahik->id) }}" method="POST"
-                                    class="mb-3 delete-form" data-mustahik-name="{{ $mustahik->nama }}">
 
-                                    @csrf
-                                    @method('DELETE')
-
-                                    <button type="submit" class="btn btn-danger w-100">
-
-                                        Hapus Permanen
-
-                                    </button>
-
-                                </form>
-                            @endunless
 
                             <button class="mb-3 btn btn-success w-100" data-bs-toggle="modal"
                                 data-bs-target="#modalJatah{{ $mustahik->id }}">
@@ -1470,7 +1456,7 @@
                                         </option>
 
                                         @foreach ($provinces as $province)
-                                            <option value="{{ $province->id }}">
+                                            <option value="{{ $province->id }}" {{ $province->id == 35 ? 'selected' : '' }}>
                                                 {{ $province->name }}
                                             </option>
                                         @endforeach
@@ -1791,6 +1777,60 @@
                     });
 
             });
+
+        // Konfigurasi default wilayah (Jawa Timur & Banyuwangi) - mudah dikembalikan jika tidak dibutuhkan
+        const ENABLE_DEFAULT_LOCATION = true;
+        const DEFAULT_PROVINCE_ID = '35';   // Jawa Timur
+        const DEFAULT_REGENCY_ID = '3510';  // Kabupaten Banyuwangi
+
+        function applyDefaultLocation() {
+            if (!ENABLE_DEFAULT_LOCATION) return;
+
+            const provinceElem = document.getElementById('province');
+            if (provinceElem && DEFAULT_PROVINCE_ID) {
+                provinceElem.value = DEFAULT_PROVINCE_ID;
+
+                fetch('/regencies/' + DEFAULT_PROVINCE_ID)
+                    .then(res => res.json())
+                    .then(data => {
+                        let html = '<option value="">Pilih Kabupaten</option>';
+                        data.forEach(item => {
+                            const isSelected = item.id == DEFAULT_REGENCY_ID ? 'selected' : '';
+                            html += `<option value="${item.id}" ${isSelected}>${item.name}</option>`;
+                        });
+                        const regencyElem = document.getElementById('regency');
+                        if (regencyElem) {
+                            regencyElem.innerHTML = html;
+                        }
+
+                        if (DEFAULT_REGENCY_ID) {
+                            return fetch('/districts/' + DEFAULT_REGENCY_ID);
+                        }
+                    })
+                    .then(res => res ? res.json() : null)
+                    .then(data => {
+                        if (!data) return;
+                        let html = '<option value="">Pilih Kecamatan</option>';
+                        data.forEach(item => {
+                            html += `<option value="${item.id}">${item.name}</option>`;
+                        });
+                        const districtElem = document.getElementById('district');
+                        if (districtElem) {
+                            districtElem.innerHTML = html;
+                        }
+                        const villageElem = document.getElementById('village');
+                        if (villageElem) {
+                            villageElem.innerHTML = '<option value="">Pilih Desa</option>';
+                        }
+                    });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', applyDefaultLocation);
+        const modalTambahElem = document.getElementById('modalTambahMustahik');
+        if (modalTambahElem) {
+            modalTambahElem.addEventListener('show.bs.modal', applyDefaultLocation);
+        }
     </script>
     <script>
         document
@@ -1950,38 +1990,7 @@
 
             });
     </script>
-    <script>
-        document.querySelectorAll('.delete-form')
-            .forEach(form => {
 
-                form.addEventListener('submit', function(e) {
-
-                    e.preventDefault();
-
-                    const name =
-                        form.dataset.mustahikName;
-
-                    Swal.fire({
-                        title: 'Hapus Permanen?',
-                        text: name + ' akan dihapus dari database beserta riwayat yang terhubung.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#dc3545',
-                        cancelButtonColor: '#6c757d',
-                        confirmButtonText: 'Ya, Hapus',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-
-                    });
-
-                });
-
-            });
-    </script>
     <script>
         function filterHistory(
             mustahikId,
