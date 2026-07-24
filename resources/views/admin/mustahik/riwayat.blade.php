@@ -38,19 +38,26 @@
         .table-responsive {
             border: 1px solid #edf0f4;
             border-radius: 14px;
-            overflow: hidden;
+            max-height: 65vh;
+            overflow-y: auto;
+            overflow-x: auto;
             margin-bottom: 0;
             width: 100%;
+            position: relative;
         }
 
         .table thead th {
-            background: #f8fafc;
+            background-color: #f8fafc !important;
             padding: 16px;
             white-space: nowrap;
             font-weight: 600;
             border: none;
             color: #4b5563;
             font-size: 0.9rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: inset 0 -1px 0 #edf0f4;
         }
 
         .table tbody td {
