@@ -12,7 +12,7 @@
 
     {{-- ─── BASE CONFIG untuk JavaScript ─────────────────────────────────── --}}
     {{-- Ganti dengan URL server hosting dan token mesin yang sebenarnya --}}
-    <meta name="api-base-url"   content="{{ rtrim(config('app.url'), '/') }}">
+    <meta name="api-base-url"   content="{{ rtrim(url('/'), '/') }}">
     <meta name="csrf-token"     content="{{ csrf_token() }}">
 
     <style>
@@ -772,7 +772,7 @@
 
 // ── KONFIGURASI ───────────────────────────────────────────────────
 const PYTHON_LOCAL_URL = 'http://localhost:8765'; // Flask local di Raspberry Pi
-const API_BASE_URL     = document.querySelector('meta[name="api-base-url"]').content;
+const API_BASE_URL     = window.location.origin;
 const POLL_INTERVAL_MS = 500;    // Polling state dari Python
 const RESET_DELAY_MS   = 8000;   // Waktu sebelum kembali ke idle setelah result
 

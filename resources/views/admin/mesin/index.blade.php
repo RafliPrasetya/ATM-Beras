@@ -530,11 +530,13 @@
 
                                                         <div class="mb-3 col-md-6">
 
-                                                            <label>Stok Beras (KG)</label>
+                                                            <label>Stok Beras Saat Ini (KG)</label>
 
-                                                            <input type="number" name="stok_beras_kg" class="form-control"
-                                                                value="{{ $machine->stok_beras_kg }}" required
-                                                                min="0" placeholder="Contoh: 50">
+                                                            <input type="number" class="form-control bg-light"
+                                                                value="{{ $machine->stok_beras_kg }}" disabled readonly>
+                                                            <small class="form-text text-muted">
+                                                                <i class="bi bi-info-circle me-1"></i>Stok diperbarui otomatis oleh sensor loadcell (API hardware).
+                                                            </small>
 
                                                         </div>
 

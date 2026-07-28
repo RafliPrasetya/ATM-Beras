@@ -69,22 +69,17 @@ class MachineController extends Controller
             'machine_code' => 'required|unique:machines,machine_code,'.$machine->id,
             'village_id' => 'required',
             'lokasi_penempatan' => 'required',
-            'stok_beras_kg' => 'required|integer|min:0',
         ], [
             'machine_code.required' => 'ID Mesin tidak boleh kosong.',
             'machine_code.unique' => 'ID Mesin sudah terdaftar dalam sistem.',
             'village_id.required' => 'Desa wajib dipilih.',
             'lokasi_penempatan.required' => 'Lokasi penempatan tidak boleh kosong.',
-            'stok_beras_kg.required' => 'Stok beras tidak boleh kosong.',
-            'stok_beras_kg.integer' => 'Stok beras harus berupa angka bulat.',
-            'stok_beras_kg.min' => 'Stok beras tidak boleh bernilai negatif.',
         ]);
 
         $machine->update([
             'machine_code' => $request->machine_code,
             'village_id' => $request->village_id,
             'lokasi_penempatan' => $request->lokasi_penempatan,
-            'stok_beras_kg' => $request->stok_beras_kg,
         ]);
 
         return back()->with(

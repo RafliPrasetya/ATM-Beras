@@ -28,4 +28,33 @@ class MachineController extends Controller
             'Status mesin berhasil diambil'
         );
     }
+
+    /**
+     * POST /api/machine/update-stock
+     *
+     * Update stok beras mesin dari hardware (sensor loadcell)
+     * baik saat terjadi transaksi maupun saat pengisian beras ulang.
+     */
+    public function updateStock(Request $request)
+    {
+        /** @var \App\Models\Machine $machine */
+        $machine = $request->attributes->get('api_machine');
+
+        $request->validate([
+            'stok_beras_kg' => 'required|numeric|min:0',
+        ], [
+            'stok_beras_kg.required' => 'Stok beras wajib diisi.',
+            'stok_beras_kg.numeric'  => 'Stok beras harus berupa angka.',
+            'stok_beras_kg.min'      => 'Stok beras tidak boleh negatif.',
+        ]);
+
+        $machine->update([
+            'stok_beras_kg' => (int) round($request->stok_beras_kg),
+        ]);
+
+        return ApiResponse::success(
+            (new MachineStatusResource($machine->fresh()))->resolve(),
+            'Stok beras mesin berhasil diperbarui via sensor loadcell API'
+        );
+    }
 }

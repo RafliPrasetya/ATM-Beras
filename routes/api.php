@@ -34,6 +34,10 @@ Route::middleware(['auth.machine', 'throttle:60,1'])->group(function () {
     Route::get('/machine/status', [MachineController::class, 'status'])
         ->name('api.machine.status');
 
+    // Update stok beras mesin (sensor loadcell / pengisian beras)
+    Route::post('/machine/update-stock', [MachineController::class, 'updateStock'])
+        ->name('api.machine.update-stock');
+
     // Validasi RFID
     Route::post('/rfid/validate', [RfidController::class, 'validate'])
         ->name('api.rfid.validate');

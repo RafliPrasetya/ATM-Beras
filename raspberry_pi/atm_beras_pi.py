@@ -68,8 +68,8 @@ log = logging.getLogger("atm-beras")
 # ═══════════════════════════════════════════════════════════════════════════════
 # KONFIGURASI — WAJIB DIISI SESUAI DATABASE
 # ═══════════════════════════════════════════════════════════════════════════════
-SERVER_URL    = os.getenv("ATM_SERVER_URL",   "https://lazismurogojampi.com")    # URL Laravel (ganti ke URL hosting saat deploy)
-MACHINE_TOKEN = os.getenv("ATM_TOKEN",        "LxhXb6hBVe5uMzJ9rKRVvGBl1FZedODGv6tBup5X57nG7wAIUgLSb0BcpSj79ZjJ")  # dari tabel machine_tokens
+SERVER_URL    = os.getenv("ATM_SERVER_URL",   "http://127.0.0.1:8000")    # URL Laravel (ganti ke URL hosting saat deploy)
+MACHINE_TOKEN = os.getenv("ATM_TOKEN",        "IXvt2v9OxyZyMkWbQOBXRmfpDbgdGtsSjQzcMww7KUCTm9AzZteL7w9GKNyTN81f")  # dari tabel machine_tokens
 MACHINE_ID    = int(os.getenv("ATM_MACHINE_ID", "1"))                   # ID mesin di DB
 FLASK_PORT    = int(os.getenv("ATM_FLASK_PORT", "8765"))                # Port lokal Flask
 
