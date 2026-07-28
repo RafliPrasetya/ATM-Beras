@@ -355,297 +355,294 @@
                                         </button>
 
                                     </td>
-
                                 </tr>
-                                <div class="modal fade" id="modalMesin{{ $machine->id }}" tabindex="-1">
-                                    <div class="modal-dialog">
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="py-4 text-center">
+                                        Belum ada data mesin
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
 
-                                        <div class="modal-content">
+                    </table>
+                </div>
 
-                                            <div class="text-center modal-body">
+                {{-- Modals diletakkan di luar table agar struktur HTML valid dan tidak rusak saat refresh AJAX --}}
+                @foreach ($machines as $machine)
+                    <!-- Modal Kontrol Mesin -->
+                    <div class="modal fade" id="modalMesin{{ $machine->id }}" tabindex="-1">
+                        <div class="modal-dialog">
 
-                                                <h3 class="mb-4">
-                                                    {{ $machine->machine_code }}
-                                                </h3>
+                            <div class="modal-content">
 
-                                                <div class="mb-3 row g-2">
+                                <div class="text-center modal-body">
 
-                                                    <div class="col-6">
-                                                        <button type="button" class="btn btn-primary btn-control w-100"
-                                                            data-bs-toggle="modal" data-bs-target="#modalEdit{{ $machine->id }}">
-                                                            Edit
-                                                        </button>
-                                                    </div>
+                                    <h3 class="mb-4">
+                                        {{ $machine->machine_code }}
+                                    </h3>
 
-                                                    <div class="col-6">
-                                                        <form action="{{ route('mesin.destroy', $machine->id) }}" method="POST"
-                                                            class="delete-form">
-                                                            @csrf
-                                                            @method('DELETE')
+                                    <div class="mb-3 row g-2">
 
-                                                            <button type="submit" class="btn btn-danger btn-control w-100">
-                                                                Hapus
-                                                            </button>
-                                                        </form>
-                                                    </div>
+                                        <div class="col-6">
+                                            <button type="button" class="btn btn-primary btn-control w-100"
+                                                data-bs-toggle="modal" data-bs-target="#modalEdit{{ $machine->id }}">
+                                                Edit
+                                            </button>
+                                        </div>
 
-                                                </div>
+                                        <div class="col-6">
+                                            <form action="{{ route('mesin.destroy', $machine->id) }}" method="POST"
+                                                class="delete-form">
+                                                @csrf
+                                                @method('DELETE')
 
-                                                <button type="button" class="mb-3 btn btn-dark w-100" data-bs-toggle="modal"
-                                                    data-bs-target="#modalJadwal{{ $machine->id }}">
-                                                    Ubah Jadwal
+                                                <button type="submit" class="btn btn-danger btn-control w-100">
+                                                    Hapus
                                                 </button>
+                                            </form>
+                                        </div>
 
-                                                <form action="{{ route('mesin.toggle-status', $machine->id) }}" method="POST">
+                                    </div>
 
-                                                    @csrf
-                                                    @method('PATCH')
+                                    <button type="button" class="mb-3 btn btn-dark w-100" data-bs-toggle="modal"
+                                        data-bs-target="#modalJadwal{{ $machine->id }}">
+                                        Ubah Jadwal
+                                    </button>
 
-                                                    <div class="d-flex justify-content-center">
-                                                        <label class="custom-switch">
-                                                            <input type="checkbox" onchange="this.form.submit()"
-                                                                {{ $machine->status_mesin == 'aktif' ? 'checked' : '' }}>
-                                                            <span class="switch-slider"></span>
-                                                            <span class="switch-label">Aktifkan Mesin</span>
-                                                        </label>
-                                                    </div>
+                                    <form action="{{ route('mesin.toggle-status', $machine->id) }}" method="POST">
 
-                                                </form>
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <div class="d-flex justify-content-center">
+                                            <label class="custom-switch">
+                                                <input type="checkbox" onchange="this.form.submit()"
+                                                    {{ $machine->status_mesin == 'aktif' ? 'checked' : '' }}>
+                                                <span class="switch-slider"></span>
+                                                <span class="switch-label">Aktifkan Mesin</span>
+                                            </label>
+                                        </div>
+
+                                    </form>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Modal Edit -->
+                    <div class="modal fade" id="modalEdit{{ $machine->id }}" tabindex="-1">
+
+                        <div class="modal-dialog modal-lg">
+
+                            <form action="{{ route('mesin.update', $machine->id) }}" method="POST">
+
+                                @csrf
+                                @method('PUT')
+
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+
+                                        <h5 class="modal-title">
+                                            Edit Mesin
+                                        </h5>
+
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal">
+                                        </button>
+
+                                    </div>
+
+                                    <div class="modal-body">
+
+                                        <div class="row">
+
+                                            <div class="mb-3 col-md-6">
+
+                                                <label>ID Mesin</label>
+
+                                                <input type="text" name="machine_code" class="form-control"
+                                                    value="{{ $machine->machine_code }}" required
+                                                    placeholder="Masukkan ID Mesin">
+
+                                            </div>
+
+                                            <div class="mb-3 col-md-6">
+
+                                                <label>Provinsi</label>
+
+                                                <select class="form-control edit-province"
+                                                    data-machine="{{ $machine->id }}">
+
+                                                    @foreach ($provinces as $province)
+                                                        <option value="{{ $province->id }}"
+                                                            {{ $province->id == $machine->village->district->regency->province->id ? 'selected' : '' }}>
+
+                                                            {{ $province->name }}
+
+                                                        </option>
+                                                    @endforeach
+
+                                                </select>
+
+                                            </div>
+
+                                            <div class="mb-3 col-md-6">
+
+                                                <label>Kabupaten</label>
+
+                                                <select class="form-control edit-regency"
+                                                    data-machine="{{ $machine->id }}">
+
+                                                    <option value="{{ $machine->village->district->regency->id }}"
+                                                        selected>
+
+                                                        {{ $machine->village->district->regency->name }}
+
+                                                    </option>
+
+                                                </select>
+
+                                            </div>
+
+                                            <div class="mb-3 col-md-6">
+
+                                                <label>Kecamatan</label>
+
+                                                <select class="form-control edit-district"
+                                                    data-machine="{{ $machine->id }}">
+
+                                                    <option value="{{ $machine->village->district->id }}" selected>
+
+                                                        {{ $machine->village->district->name }}
+
+                                                    </option>
+
+                                                </select>
+
+                                            </div>
+
+                                            <div class="mb-3 col-md-6">
+
+                                                <label>Desa</label>
+
+                                                <select name="village_id" class="form-control edit-village"
+                                                    data-machine="{{ $machine->id }}">
+
+                                                    <option value="{{ $machine->village->id }}" selected>
+
+                                                        {{ $machine->village->name }}
+
+                                                    </option>
+
+                                                </select>
+
+                                            </div>
+
+                                            <div class="mb-3 col-md-6">
+
+                                                <label>Stok Beras Saat Ini (KG)</label>
+
+                                                <input type="number" class="form-control bg-light"
+                                                    value="{{ $machine->stok_beras_kg }}" disabled readonly>
+                                                <small class="form-text text-muted">
+                                                    <i class="bi bi-info-circle me-1"></i>Stok diperbarui otomatis oleh sensor loadcell (API hardware).
+                                                </small>
+
+                                            </div>
+
+                                            <div class="mb-3 col-md-12">
+
+                                                <label>Lokasi Mesin</label>
+
+                                                <textarea name="lokasi_penempatan" class="form-control" required
+                                                    placeholder="Masukkan alamat lengkap lokasi penempatan mesin (Contoh: Masjid Al-Ikhlas RT 01/RW 02)">{{ $machine->lokasi_penempatan }}</textarea>
 
                                             </div>
 
                                         </div>
 
                                     </div>
-                                </div>
 
-                                <!-- Modal Edit -->
-                                <div class="modal fade" id="modalEdit{{ $machine->id }}" tabindex="-1">
+                                    <div class="modal-footer">
 
-                                    <div class="modal-dialog modal-lg">
+                                        <button class="btn btn-primary">
 
-                                        <form action="{{ route('mesin.update', $machine->id) }}" method="POST">
+                                            Simpan Perubahan
 
-                                            @csrf
-                                            @method('PUT')
-
-                                            <div class="modal-content">
-
-                                                 <div class="modal-header">
-
-                                <h5 class="modal-title">
-                                    Edit Mesin
-                                </h5>
-
-                                <button type="button" class="btn-close" data-bs-dismiss="modal">
-                                </button>
-
-                            </div>
-
-                                                <div class="modal-body">
-
-                                                    <div class="row">
-
-                                                        <div class="mb-3 col-md-6">
-
-                                                            <label>ID Mesin</label>
-
-                                                            <input type="text" name="machine_code" class="form-control"
-                                                                value="{{ $machine->machine_code }}" required
-                                                                placeholder="Masukkan ID Mesin">
-
-                                                        </div>
-
-                                                        <div class="mb-3 col-md-6">
-
-                                                            <label>Provinsi</label>
-
-                                                            <select class="form-control edit-province"
-                                                                data-machine="{{ $machine->id }}">
-
-                                                                @foreach ($provinces as $province)
-                                                                    <option value="{{ $province->id }}"
-                                                                        {{ $province->id == $machine->village->district->regency->province->id ? 'selected' : '' }}>
-
-                                                                        {{ $province->name }}
-
-                                                                    </option>
-                                                                @endforeach
-
-                                                            </select>
-
-                                                        </div>
-
-                                                        <div class="mb-3 col-md-6">
-
-                                                            <label>Kabupaten</label>
-
-                                                            <select class="form-control edit-regency"
-                                                                data-machine="{{ $machine->id }}">
-
-                                                                <option value="{{ $machine->village->district->regency->id }}"
-                                                                    selected>
-
-                                                                    {{ $machine->village->district->regency->name }}
-
-                                                                </option>
-
-                                                            </select>
-
-                                                        </div>
-
-                                                        <div class="mb-3 col-md-6">
-
-                                                            <label>Kecamatan</label>
-
-                                                            <select class="form-control edit-district"
-                                                                data-machine="{{ $machine->id }}">
-
-                                                                <option value="{{ $machine->village->district->id }}" selected>
-
-                                                                    {{ $machine->village->district->name }}
-
-                                                                </option>
-
-                                                            </select>
-
-                                                        </div>
-
-                                                        <div class="mb-3 col-md-6">
-
-                                                            <label>Desa</label>
-
-                                                            <select name="village_id" class="form-control edit-village"
-                                                                data-machine="{{ $machine->id }}">
-
-                                                                <option value="{{ $machine->village->id }}" selected>
-
-                                                                    {{ $machine->village->name }}
-
-                                                                </option>
-
-                                                            </select>
-
-                                                        </div>
-
-                                                        <div class="mb-3 col-md-6">
-
-                                                            <label>Stok Beras Saat Ini (KG)</label>
-
-                                                            <input type="number" class="form-control bg-light"
-                                                                value="{{ $machine->stok_beras_kg }}" disabled readonly>
-                                                            <small class="form-text text-muted">
-                                                                <i class="bi bi-info-circle me-1"></i>Stok diperbarui otomatis oleh sensor loadcell (API hardware).
-                                                            </small>
-
-                                                        </div>
-
-                                                        <div class="mb-3 col-md-12">
-
-                                                            <label>Lokasi Mesin</label>
-
-                                                            <textarea name="lokasi_penempatan" class="form-control" required
-                                                                placeholder="Masukkan alamat lengkap lokasi penempatan mesin (Contoh: Masjid Al-Ikhlas RT 01/RW 02)">{{ $machine->lokasi_penempatan }}</textarea>
-
-                                                        </div>
-
-                                                    </div>
-
-                                                </div>
-
-                                                <div class="modal-footer">
-
-                                                    <button class="btn btn-primary">
-
-                                                        Simpan Perubahan
-
-                                                    </button>
-
-                                                </div>
-
-                                            </div>
-
-                                        </form>
+                                        </button>
 
                                     </div>
 
                                 </div>
 
-                                <!-- Modal Jadwal -->
-                                <div class="modal fade" id="modalJadwal{{ $machine->id }}" tabindex="-1">
+                            </form>
 
-                                    <div class="modal-dialog">
+                        </div>
 
-                                        <form action="{{ route('mesin.update-jadwal', $machine->id) }}" method="POST">
+                    </div>
 
-                                            @csrf
-                                            @method('PATCH')
+                    <!-- Modal Jadwal -->
+                    <div class="modal fade" id="modalJadwal{{ $machine->id }}" tabindex="-1">
 
-                                            <div class="modal-content">
+                        <div class="modal-dialog">
 
-                                                <div class="modal-header">
+                            <form action="{{ route('mesin.update-jadwal', $machine->id) }}" method="POST">
 
-                                                    <h5>Jadwal Operasional</h5>
+                                @csrf
+                                @method('PATCH')
 
-                                                </div>
+                                <div class="modal-content">
 
-                                                <div class="modal-body">
+                                    <div class="modal-header">
 
-                                                    <div class="mb-3">
+                                        <h5>Jadwal Operasional</h5>
 
-                                                        <label>Mulai</label>
+                                    </div>
 
-                                                        <input type="datetime-local" name="jadwal_mulai" class="form-control"
-                                                            value="{{ $machine->jadwal_mulai ? $machine->jadwal_mulai->format('Y-m-d\TH:i') : '' }}">
+                                    <div class="modal-body">
 
-                                                    </div>
+                                        <div class="mb-3">
 
-                                                    <div class="mb-3">
+                                            <label>Mulai</label>
 
-                                                        <label>Selesai</label>
+                                            <input type="datetime-local" name="jadwal_mulai" class="form-control"
+                                                value="{{ $machine->jadwal_mulai ? $machine->jadwal_mulai->format('Y-m-d\TH:i') : '' }}">
 
-                                                        <input type="datetime-local" name="jadwal_selesai" class="form-control"
-                                                            value="{{ $machine->jadwal_selesai ? $machine->jadwal_selesai->format('Y-m-d\TH:i') : '' }}">
+                                        </div>
 
-                                                    </div>
+                                        <div class="mb-3">
 
-                                                </div>
+                                            <label>Selesai</label>
 
-                                                <div class="modal-footer">
+                                            <input type="datetime-local" name="jadwal_selesai" class="form-control"
+                                                value="{{ $machine->jadwal_selesai ? $machine->jadwal_selesai->format('Y-m-d\TH:i') : '' }}">
 
-                                                    <button class="btn btn-primary">
+                                        </div>
 
-                                                        Simpan Jadwal
+                                    </div>
 
-                                                    </button>
+                                    <div class="modal-footer">
 
-                                                </div>
+                                        <button class="btn btn-primary">
 
-                                            </div>
+                                            Simpan Jadwal
 
-                                        </form>
+                                        </button>
 
                                     </div>
 
                                 </div>
 
-                            @empty
+                            </form>
 
-                                <tr>
+                        </div>
 
-                                    <td colspan="9" class="py-4 text-center">
-
-                                        Belum ada data mesin
-
-                                    </td>
-
-                                </tr>
-                            @endforelse
-
-                        </tbody>
-
-                    </table>
-                </div>
+                    </div>
+                @endforeach
 
                 <div class="mt-3 d-flex justify-content-end">
                     {{ $machines->links('pagination::bootstrap-5') }}
@@ -921,146 +918,68 @@
         }
     </script>
     <script>
-        document.querySelectorAll('.edit-province')
-            .forEach(function(province) {
-
-                province.addEventListener('change', function() {
-
-                    const machineId =
-                        this.dataset.machine;
-
-                    fetch('/regencies/' + this.value)
-
-                        .then(res => res.json())
-
-                        .then(data => {
-
-                            let html =
-                                '<option value="">Pilih Kabupaten</option>';
-
-                            data.forEach(item => {
-
-                                html += `
-                    <option value="${item.id}">
-                        ${item.name}
-                    </option>
-                `;
-                            });
-
-                            document.querySelector(
-                                '.edit-regency[data-machine="' +
-                                machineId +
-                                '"]'
-                            ).innerHTML = html;
+        document.addEventListener('change', function(e) {
+            const target = e.target;
+            
+            if (target && target.classList.contains('edit-province')) {
+                const machineId = target.dataset.machine;
+                fetch('/regencies/' + target.value)
+                    .then(res => res.json())
+                    .then(data => {
+                        let html = '<option value="">Pilih Kabupaten</option>';
+                        data.forEach(item => {
+                            html += `<option value="${item.id}">${item.name}</option>`;
                         });
-
-                });
-
-            });
-
-
-        document.querySelectorAll('.edit-regency')
-            .forEach(function(regency) {
-
-                regency.addEventListener('change', function() {
-
-                    const machineId =
-                        this.dataset.machine;
-
-                    fetch('/districts/' + this.value)
-
-                        .then(res => res.json())
-
-                        .then(data => {
-
-                            let html =
-                                '<option value="">Pilih Kecamatan</option>';
-
-                            data.forEach(item => {
-
-                                html += `
-                    <option value="${item.id}">
-                        ${item.name}
-                    </option>
-                `;
-                            });
-
-                            document.querySelector(
-                                '.edit-district[data-machine="' +
-                                machineId +
-                                '"]'
-                            ).innerHTML = html;
+                        const elem = document.querySelector('.edit-regency[data-machine="' + machineId + '"]');
+                        if (elem) elem.innerHTML = html;
+                    });
+            } else if (target && target.classList.contains('edit-regency')) {
+                const machineId = target.dataset.machine;
+                fetch('/districts/' + target.value)
+                    .then(res => res.json())
+                    .then(data => {
+                        let html = '<option value="">Pilih Kecamatan</option>';
+                        data.forEach(item => {
+                            html += `<option value="${item.id}">${item.name}</option>`;
                         });
-
-                });
-
-            });
-
-
-        document.querySelectorAll('.edit-district')
-            .forEach(function(district) {
-
-                district.addEventListener('change', function() {
-
-                    const machineId =
-                        this.dataset.machine;
-
-                    fetch('/villages/' + this.value)
-
-                        .then(res => res.json())
-
-                        .then(data => {
-
-                            let html =
-                                '<option value="">Pilih Desa</option>';
-
-                            data.forEach(item => {
-
-                                html += `
-                    <option value="${item.id}">
-                        ${item.name}
-                    </option>
-                `;
-                            });
-
-                            document.querySelector(
-                                '.edit-village[data-machine="' +
-                                machineId +
-                                '"]'
-                            ).innerHTML = html;
+                        const elem = document.querySelector('.edit-district[data-machine="' + machineId + '"]');
+                        if (elem) elem.innerHTML = html;
+                    });
+            } else if (target && target.classList.contains('edit-district')) {
+                const machineId = target.dataset.machine;
+                fetch('/villages/' + target.value)
+                    .then(res => res.json())
+                    .then(data => {
+                        let html = '<option value="">Pilih Desa</option>';
+                        data.forEach(item => {
+                            html += `<option value="${item.id}">${item.name}</option>`;
                         });
-
-                });
-
-            });
+                        const elem = document.querySelector('.edit-village[data-machine="' + machineId + '"]');
+                        if (elem) elem.innerHTML = html;
+                    });
+            }
+        });
     </script>
     <script>
-        document.querySelectorAll('.delete-form')
-            .forEach(form => {
-
-                form.addEventListener('submit', function(e) {
-
-                    e.preventDefault();
-
-                    Swal.fire({
-                        title: 'Hapus Mesin?',
-                        text: 'Data mesin akan dihapus permanen',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Ya, Hapus',
-                        cancelButtonText: 'Batal',
-                        confirmButtonColor: '#dc3545'
-                    }).then((result) => {
-
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-
-                    });
-
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (form && form.classList.contains('delete-form')) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Hapus Mesin?',
+                    text: 'Data mesin akan dihapus permanen',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#dc3545'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
                 });
-
-            });
+            }
+        });
     </script>
     <script>
         document.getElementById('btnRefreshMesin').addEventListener('click', function(e) {
