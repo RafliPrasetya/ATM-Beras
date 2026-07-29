@@ -21,13 +21,24 @@ Setup:
 """
 
 import os
+import sys
 import time
 import threading
 import logging
+import pathlib
 
 import requests
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+
+try:
+    from dotenv import load_dotenv, set_key
+    # Muat .env dari direktori yang sama dengan script ini
+    _ENV_PATH = pathlib.Path(__file__).resolve().parent / ".env"
+    load_dotenv(_ENV_PATH)
+except ImportError:
+    _ENV_PATH = pathlib.Path(__file__).resolve().parent / ".env"
+    print("[WARN] python-dotenv tidak terinstall — env hanya dari OS environment")
 
 # Mode RFID yang digunakan:
 #   "rc522"      : Menggunakan sensor RC522 (GPIO SPI / kabel jumper)
@@ -66,23 +77,114 @@ logging.basicConfig(
 log = logging.getLogger("atm-beras")
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# KONFIGURASI — WAJIB DIISI SESUAI DATABASE
+# KONFIGURASI
 # ═══════════════════════════════════════════════════════════════════════════════
-SERVER_URL    = os.getenv("ATM_SERVER_URL",   "http://127.0.0.1:8000")    # URL Laravel (ganti ke URL hosting saat deploy)
-MACHINE_TOKEN = os.getenv("ATM_TOKEN",        "IXvt2v9OxyZyMkWbQOBXRmfpDbgdGtsSjQzcMww7KUCTm9AzZteL7w9GKNyTN81f")  # dari tabel machine_tokens
-MACHINE_ID    = int(os.getenv("ATM_MACHINE_ID", "1"))                   # ID mesin di DB
-FLASK_PORT    = int(os.getenv("ATM_FLASK_PORT", "8765"))                # Port lokal Flask
+SERVER_URL     = os.getenv("ATM_SERVER_URL",    "http://127.0.0.1:8000")
+MACHINE_CODE   = os.getenv("ATM_MACHINE_CODE", "ATM-01")          # Kode mesin di DB (wajib)
+MACHINE_TOKEN  = os.getenv("ATM_TOKEN", "")         or ""    # Diisi otomatis via provisioning
+MACHINE_ID     = int(os.getenv("ATM_MACHINE_ID", "0") or "0") # Diisi otomatis via provisioning
+FLASK_PORT     = int(os.getenv("ATM_FLASK_PORT", "8765"))
 
 # GPIO — pin yang digunakan (BCM numbering)
-PIN_MOTOR     = int(os.getenv("ATM_PIN_MOTOR", "18"))   # Pin motor dispenser
-DETIK_PER_KG  = float(os.getenv("ATM_DETIK_PER_KG", "3.0"))  # Durasi motor per kg
+PIN_MOTOR      = int(os.getenv("ATM_PIN_MOTOR", "18"))
+DETIK_PER_KG   = float(os.getenv("ATM_DETIK_PER_KG", "3.0"))
 
-API_BASE    = f"{SERVER_URL.rstrip('/')}/api"
-API_HEADERS = {
-    "Authorization": f"Bearer {MACHINE_TOKEN}",
-    "Content-Type":  "application/json",
-    "Accept":        "application/json",
-}
+API_BASE = f"{SERVER_URL.rstrip('/')}/api"
+
+
+def _build_api_headers():
+    """Build API headers with current token (bisa berubah setelah re-provision)."""
+    return {
+        "Authorization": f"Bearer {MACHINE_TOKEN}",
+        "Content-Type":  "application/json",
+        "Accept":        "application/json",
+    }
+
+
+def _save_to_env(key: str, value: str):
+    """Simpan key=value ke file .env lokal agar persist setelah restart."""
+    try:
+        from dotenv import set_key
+        set_key(str(_ENV_PATH), key, value)
+        log.info(f"[ENV] Tersimpan: {key}={'***' if 'TOKEN' in key else value}")
+    except ImportError:
+        # Fallback: tulis manual ke .env
+        lines = []
+        found = False
+        if _ENV_PATH.exists():
+            lines = _ENV_PATH.read_text(encoding="utf-8").splitlines()
+        for i, line in enumerate(lines):
+            if line.startswith(f"{key}="):
+                lines[i] = f"{key}={value}"
+                found = True
+                break
+        if not found:
+            lines.append(f"{key}={value}")
+        _ENV_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        log.info(f"[ENV] Tersimpan (manual): {key}={'***' if 'TOKEN' in key else value}")
+
+
+def auto_provision():
+    """
+    Self-provisioning: kirim machine_code ke server → terima token.
+    Dipanggil saat pertama kali boot (token kosong) atau saat token invalid (401).
+    """
+    global MACHINE_TOKEN, MACHINE_ID
+
+    log.info(f"[PROVISION] Memulai provisioning untuk mesin '{MACHINE_CODE}'...")
+    url = f"{API_BASE}/machine/provision"
+
+    try:
+        resp = requests.post(
+            url,
+            json={"machine_code": MACHINE_CODE},
+            headers={"Content-Type": "application/json", "Accept": "application/json"},
+            timeout=15,
+        )
+
+        if resp.status_code == 200:
+            data = resp.json().get("data", {})
+            MACHINE_TOKEN = data.get("token", "")
+            MACHINE_ID    = int(data.get("machine_id", 0))
+
+            # Simpan ke .env agar persist setelah restart
+            _save_to_env("ATM_TOKEN", MACHINE_TOKEN)
+            _save_to_env("ATM_MACHINE_ID", str(MACHINE_ID))
+
+            log.info(f"[PROVISION] ✅ Berhasil! Machine ID={MACHINE_ID}, Token=***{MACHINE_TOKEN[-8:]}")
+            return True
+        else:
+            body = resp.json() if resp.headers.get("content-type", "").startswith("application/json") else {}
+            msg  = body.get("message", resp.text[:200])
+            log.error(f"[PROVISION] ❌ Gagal (HTTP {resp.status_code}): {msg}")
+            return False
+
+    except requests.exceptions.ConnectionError:
+        log.error(f"[PROVISION] ❌ Tidak bisa terhubung ke server: {url}")
+        return False
+    except Exception as e:
+        log.exception(f"[PROVISION] ❌ Error: {e}")
+        return False
+
+
+def ensure_provisioned():
+    """
+    Pastikan mesin sudah punya token yang valid.
+    Akan retry setiap 10 detik sampai berhasil.
+    """
+    if MACHINE_TOKEN:
+        log.info(f"[PROVISION] Token sudah ada (***{MACHINE_TOKEN[-8:]}), skip provisioning.")
+        return
+
+    log.info("[PROVISION] Token belum tersedia, memulai auto-provisioning...")
+    while not MACHINE_TOKEN:
+        if auto_provision():
+            break
+        log.info("[PROVISION] Retry dalam 10 detik...")
+        time.sleep(10)
+
+
+API_HEADERS = _build_api_headers()  # Initial headers (akan diupdate setelah provisioning)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # STATE BERSAMA
@@ -345,11 +447,20 @@ def reset_state():
 if __name__ == "__main__":
     log.info("=" * 55)
     log.info("  ATM Beras — Raspberry Pi Controller")
-    log.info(f"  Server : {SERVER_URL}")
-    log.info(f"  Mesin  : ID={MACHINE_ID}")
-    log.info(f"  Flask  : localhost:{FLASK_PORT}")
-    log.info(f"  GPIO   : {'Aktif' if GPIO_AVAILABLE else 'Simulasi'}")
-    log.info(f"  RFID   : {'Aktif' if RFID_AVAILABLE else 'Simulasi'}")
+    log.info(f"  Server       : {SERVER_URL}")
+    log.info(f"  Machine Code : {MACHINE_CODE}")
+    log.info(f"  Flask        : localhost:{FLASK_PORT}")
+    log.info(f"  GPIO         : {'Aktif' if GPIO_AVAILABLE else 'Simulasi'}")
+    log.info(f"  RFID         : {'Aktif' if RFID_AVAILABLE else 'Simulasi'}")
+    log.info("=" * 55)
+
+    # ── Self-Provisioning: dapatkan token jika belum ada ──────────────────
+    ensure_provisioned()
+
+    # Update API headers setelah provisioning berhasil
+    API_HEADERS = _build_api_headers()
+    log.info(f"  Machine ID   : {MACHINE_ID}")
+    log.info(f"  Token        : ***{MACHINE_TOKEN[-8:] if MACHINE_TOKEN else 'KOSONG'}")
     log.info("=" * 55)
 
     setup_gpio()

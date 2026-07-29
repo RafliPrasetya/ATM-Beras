@@ -776,11 +776,11 @@ const API_BASE_URL     = window.location.origin;
 const POLL_INTERVAL_MS = 500;    // Polling state dari Python
 const RESET_DELAY_MS   = 8000;   // Waktu sebelum kembali ke idle setelah result
 
-// Token mesin — harus diisi sesuai machine_tokens di database
-// Di produksi, ini bisa diambil dari file env di Raspberry Pi
-// dan di-pass ke halaman ini via custom header atau query param
-const MACHINE_TOKEN = 'IXvt2v9OxyZyMkWbQOBXRmfpDbgdGtsSjQzcMww7KUCTm9AzZteL7w9GKNyTN81f'; // ← WAJIB DIISI
-const MACHINE_ID    = 1;                            // ← WAJIB DIISI
+// Token & ID mesin — otomatis disinkronkan dari Python Flask via polling /state
+// Tidak perlu diisi manual! Python auto-provision akan menyediakan token.
+let activeMachineToken = ''; // Diisi otomatis dari Python state
+let activeMachineId    = 0;  // Diisi otomatis dari Python state
+let activeRfidMode     = 'rc522';       // Mode RFID aktif: rc522 | usb | simulation
 
 // ── STATE LOCAL ───────────────────────────────────────────────────
 let currentScreen    = 'idle';
@@ -791,9 +791,6 @@ let allowedOptions   = [];
 let countdownTimer   = null;
 let errorToastTimer  = null;
 let transactionInProgress = false;  // Flag: cegah polling reset saat transaksi berjalan
-let activeMachineToken = MACHINE_TOKEN; // Token aktif yang sinkron dari Python
-let activeMachineId    = MACHINE_ID;    // ID mesin aktif yang sinkron dari Python
-let activeRfidMode     = 'rc522';       // Mode RFID aktif: rc522 | usb | simulation
 
 // ── DOM HELPERS ───────────────────────────────────────────────────
 const screens = {

@@ -8,6 +8,9 @@ flask-cors==4.0.1
 # HTTP client untuk komunikasi dengan Laravel API
 requests==2.32.3
 
+# Manajemen .env file untuk konfigurasi & self-provisioning
+python-dotenv==1.0.1
+
 # Library RFID RC522 (hanya dibutuhkan di Raspberry Pi)
 # Di PC development, baris ini bisa di-comment
 # mfrc522==0.0.7

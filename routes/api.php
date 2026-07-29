@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\MachineController;
+use App\Http\Controllers\Api\ProvisionController;
 use App\Http\Controllers\Api\RfidController;
 use App\Http\Controllers\Api\SystemController;
 use App\Http\Controllers\Api\TransactionController;
@@ -22,6 +23,11 @@ use Illuminate\Support\Facades\Route;
 // ── Public (tanpa auth) ──────────────────────────────────────────────────
 Route::get('/system/heartbeat', [SystemController::class, 'heartbeat'])
     ->name('api.system.heartbeat');
+
+// Self-provisioning: Pi kirim machine_code → dapat token (rate-limited ketat)
+Route::post('/machine/provision', [ProvisionController::class, 'provision'])
+    ->middleware('throttle:5,1')
+    ->name('api.machine.provision');
 
 // ── Protected (wajib Bearer Token mesin) ────────────────────────────────
 Route::middleware(['auth.machine', 'throttle:60,1'])->group(function () {
