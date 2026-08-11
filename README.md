@@ -1,59 +1,378 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Pengembangan Sistem ATM Beras Berbasis Web dengan E-KTP Sebagai Kunci Akses Distribusi
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Repository ini berisi source code Tugas Akhir yang berjudul **"Pengembangan Sistem ATM Beras Berbasis Web dengan E-KTP Sebagai Kunci Akses Distribusi"**, yang dikembangkan sebagai solusi distribusi beras otomatis untuk mustahik (penerima manfaat zakat).
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📖 Deskripsi Proyek
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Distribusi beras kepada mustahik yang selama ini dilakukan secara manual seringkali menghadapi berbagai kendala, seperti antrean panjang, ketidakakuratan pencatatan, serta sulitnya memantau stok dan riwayat pengambilan secara real-time. Proses manual ini juga rentan terhadap kesalahan administrasi dan memakan waktu yang cukup lama.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Sistem **ATM Beras** hadir sebagai solusi digital **berbasis web** yang mengotomatisasi seluruh proses distribusi beras. Sistem ini memanfaatkan **e-KTP (Kartu Tanda Penduduk Elektronik)** sebagai **kunci akses distribusi**, di mana chip RFID yang tertanam pada e-KTP digunakan untuk mengidentifikasi dan memverifikasi mustahik secara cepat dan akurat. Dengan pendekatan ini, mustahik cukup menempelkan e-KTP mereka pada reader untuk mengambil jatah beras secara mandiri, tanpa memerlukan kartu tambahan.
 
-## Learning Laravel
+Sistem ini dibangun dengan pendekatan **tiga komponen utama** yang saling terintegrasi:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+1. **Web Admin (Laravel)** — Dashboard untuk admin mengelola data mesin, mustahik, transaksi, berita, dan memantau seluruh operasional sistem melalui antarmuka web.
+2. **Kiosk Interface** — Tampilan layar sentuh fullscreen yang berjalan di Raspberry Pi via Chromium, menjadi antarmuka langsung antara mustahik dan mesin ATM Beras.
+3. **Raspberry Pi Controller (Python)** — Script yang menjalankan pembacaan chip RFID pada e-KTP, komunikasi dengan server Laravel via REST API, dan pengendalian motor dispenser beras melalui GPIO.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Selain itu, sistem ini juga dilengkapi dengan:
+- **Landing Page** publik yang menampilkan informasi program dan berita terkait distribusi beras.
+- **Notifikasi WhatsApp** otomatis untuk memberitahu mustahik terkait pengambilan beras.
+- **Ekspor laporan PDF** untuk dokumentasi riwayat pengambilan beras.
+- **Self-provisioning** pada Raspberry Pi, sehingga perangkat baru dapat dikonfigurasi secara otomatis tanpa intervensi teknis yang rumit.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 👥 Fitur Berdasarkan Peran (Role)
 
-### Premium Partners
+### 🛡️ Admin (Web Admin)
+- Login web admin (username & password)
+- **Dashboard**: statistik jumlah mesin, mustahik aktif, total transaksi, dan grafik distribusi beras
+- **Manajemen Mesin** (CRUD): tambah, edit, hapus mesin — termasuk pengelolaan wilayah (provinsi → kabupaten → kecamatan → kelurahan), penjadwalan operasional, dan toggle status mesin (aktif/nonaktif/maintenance)
+- **Manajemen Mustahik** (CRUD): tambah, edit, hapus data penerima manfaat — lengkap dengan UID e-KTP (RFID), NIK, alamat, jatah beras, dan status aktif/nonaktif
+- **Tambah Jatah Beras**: menambahkan kuota beras mustahik secara manual
+- **Riwayat Pengambilan**: melihat seluruh riwayat transaksi pengambilan beras per mustahik
+- **Ekspor PDF**: mengunduh laporan riwayat pengambilan per mustahik dan laporan pengambilan keseluruhan
+- **Manajemen Berita** (CRUD): membuat, mengedit, dan menghapus berita/artikel yang ditampilkan di landing page
+- **Manajemen Admin**: mengelola akun administrator sistem
+- **Notifikasi WhatsApp**: pengiriman notifikasi otomatis ke mustahik via WhatsApp (Fonnte API)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 📺 Kiosk (Tampilan Mesin ATM Beras)
+- Tampilan fullscreen di monitor Raspberry Pi (Chromium Kiosk Mode)
+- Menampilkan informasi identitas mustahik setelah e-KTP di-tap pada reader
+- Pilihan jumlah beras yang ingin diambil (dalam kilogram) via numpad
+- Indikator status mesin (online/offline, stok tersedia)
+- Komunikasi real-time dengan Raspberry Pi melalui Flask local server
 
-## Contributing
+### 🔌 Raspberry Pi (IoT Controller)
+- Membaca chip RFID pada e-KTP (mendukung 3 mode: **RC522** via GPIO, **USB RFID Reader**, dan **Simulasi**)
+- Validasi UID e-KTP ke server Laravel via REST API
+- Mengendalikan **motor DC dispenser** beras melalui driver L298N + GPIO
+- Menjalankan **Flask local server** sebagai jembatan komunikasi antara Chromium Kiosk dan hardware
+- **Self-provisioning**: otomatis mendaftarkan diri ke server dan mendapatkan token saat pertama kali dinyalakan
+- Update stok beras otomatis ke server setelah transaksi
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 🌐 Landing Page (Publik)
+- Halaman informasi publik tentang program ATM Beras
+- Menampilkan berita/artikel terbaru dari admin
+- Fitur **Cek Penerima**: masyarakat dapat mengecek apakah mereka terdaftar sebagai mustahik
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🧰 Teknologi yang Digunakan
 
-## Security Vulnerabilities
+### Backend & Web Admin (Laravel)
+| Kategori | Teknologi |
+|---|---|
+| Framework | Laravel 12 (PHP 8.2+) |
+| Basis Data | MySQL |
+| Autentikasi Web | Laravel Breeze (Session-Based) |
+| Frontend Web | Blade, Bootstrap 5, Tailwind CSS, Alpine.js |
+| Build Tool | Vite |
+| Ekspor PDF | barryvdh/laravel-dompdf |
+| Notifikasi WA | Fonnte API (WhatsApp Gateway) |
+| Interaksi UI | SweetAlert2, Bootstrap Icons |
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Raspberry Pi (Python)
+| Kategori | Teknologi |
+|---|---|
+| Bahasa | Python 3 |
+| Web Server Lokal | Flask 3.0 + Flask-CORS |
+| HTTP Client | Requests |
+| Manajemen Konfigurasi | python-dotenv |
+| RFID Reader (e-KTP) | mfrc522 (RC522 via SPI) / USB HID |
+| GPIO Control | RPi.GPIO |
 
-## License
+### Hardware (Perangkat Keras)
+| Komponen | Fungsi |
+|---|---|
+| Raspberry Pi 4 (2GB+) | Otak utama perangkat ATM |
+| RFID Reader RC522 / USB RFID | Membaca chip RFID pada e-KTP mustahik |
+| Numpad USB | Input pilihan kilogram beras |
+| Monitor HDMI | Menampilkan antarmuka kiosk |
+| Motor Driver L298N + Motor DC | Menggerakkan dispenser beras |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 🗄️ Struktur Database (MySQL)
+
+| Tabel | Deskripsi |
+|---|---|
+| `admins` | Data administrator sistem (nama, username, email, password) |
+| `provinces` | Master data provinsi |
+| `regencies` | Master data kabupaten/kota (FK → provinces) |
+| `districts` | Master data kecamatan (FK → regencies) |
+| `villages` | Master data kelurahan/desa (FK → districts) |
+| `machines` | Data mesin ATM Beras (kode mesin, lokasi, status, stok beras, jadwal operasional) |
+| `machine_tokens` | Token autentikasi Bearer untuk setiap perangkat Raspberry Pi |
+| `mustahiks` | Data penerima manfaat/mustahik (nama, UID e-KTP, NIK, no HP, alamat, jatah beras, status) |
+| `transactions` | Riwayat transaksi pengambilan beras (mustahik, mesin, jumlah gram, tanggal) |
+| `news` | Berita/artikel yang ditampilkan di landing page |
+| `api_logs` | Log aktivitas API dari perangkat Raspberry Pi |
+
+**Relasi utama:**
+- `machines` → `villages` (lokasi mesin)
+- `mustahiks` → `villages` (alamat mustahik)
+- `transactions` → `mustahiks` + `machines` (riwayat pengambilan)
+- `machine_tokens` → `machines` (autentikasi perangkat)
+
+---
+
+## 🚀 Panduan Instalasi & Menjalankan Proyek
+
+### Persyaratan Umum
+
+- **Git**
+- **PHP** ^8.2
+- **Composer**
+- **MySQL** (disarankan via Laragon/XAMPP untuk lokal)
+- **Node.js** & **npm** (untuk build asset frontend)
+- **Python 3** & **pip** (untuk Raspberry Pi controller)
+
+### 1. Clone Repository
+
+```bash
+git clone https://github.com/RafliPrasetya/ATM-Beras.git
+cd ATM-Beras
+```
+
+Struktur folder setelah clone:
+
+```
+ATM-Beras/
+├── app/                 # Laravel — Controllers, Models, Services
+├── database/            # Migrations & Seeders
+├── resources/views/     # Blade Templates (Admin, Kiosk, Landing)
+├── routes/              # Web & API Routes
+├── raspberry_pi/        # Python Script untuk Raspberry Pi
+├── public/              # Assets publik
+└── README.md
+```
+
+---
+
+### 2. Setup Backend & Web Admin (Laravel)
+
+#### a. Install dependency PHP
+
+```bash
+composer install
+```
+
+#### b. Salin file environment
+
+```bash
+cp .env.example .env
+```
+
+#### c. Konfigurasi `.env`
+
+Sesuaikan bagian berikut pada file `.env`:
+
+```env
+APP_NAME="ATM Beras"
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://127.0.0.1:8000
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=atm_beras
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+> **Catatan:** Sesuaikan `DB_DATABASE`, `DB_USERNAME`, dan `DB_PASSWORD` dengan konfigurasi MySQL di komputer Anda. Pastikan database dengan nama pada `DB_DATABASE` sudah dibuat terlebih dahulu (bisa lewat phpMyAdmin/HeidiSQL/Laragon).
+
+#### d. Generate application key
+
+```bash
+php artisan key:generate
+```
+
+#### e. Jalankan migrasi & seeder database
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+Perintah ini akan membuat seluruh tabel dan mengisi data awal (akun admin, data wilayah, data transaksi uji coba).
+
+#### f. Install dependency frontend & build assets
+
+```bash
+npm install
+npm run build
+```
+
+#### g. Jalankan server lokal
+
+```bash
+php artisan serve
+```
+
+Aplikasi web admin dapat diakses di `http://127.0.0.1:8000`.
+
+> **Alternatif:** Jika menggunakan Laragon, cukup jalankan proyek di dalam folder `www/` Laragon lalu akses melalui virtual host yang dikonfigurasi (misalnya `http://atm-beras.test`).
+
+> **Mode Development:** Untuk menjalankan server, queue, dan Vite secara bersamaan:
+> ```bash
+> composer dev
+> ```
+
+---
+
+### 3. Setup Raspberry Pi
+
+Panduan lengkap untuk setup Raspberry Pi tersedia di **[`raspberry_pi/README.md`](raspberry_pi/README.md)**, mencakup:
+- Prasyarat hardware
+- Instalasi OS & dependencies Python
+- Konfigurasi `.env` (hanya perlu isi `ATM_SERVER_URL` dan `ATM_MACHINE_CODE`)
+- Pemilihan mode pembacaan e-KTP (RC522 / USB / Simulasi)
+- Menjalankan script & self-provisioning otomatis
+- Setup autostart saat Pi dinyalakan
+- Wiring diagram RFID RC522
+- Troubleshooting
+
+---
+
+### 4. Akun Uji Coba (Hasil Seeder)
+
+| Role | Username / Email | Password |
+|---|---|---|
+| Admin | `admin` / `admin@gmail.com` | `admin123` |
+
+> Lihat `AdminSeeder.php` pada folder `database/seeders/` untuk detail akun uji.
+
+---
+
+## 📂 Struktur Direktori Repository
+
+```
+ATM-Beras/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Api/                    # Controller API untuk Raspberry Pi
+│   │   │   │   ├── MachineController   # Status & update stok mesin
+│   │   │   │   ├── ProvisionController # Self-provisioning perangkat
+│   │   │   │   ├── RfidController      # Validasi e-KTP (RFID)
+│   │   │   │   ├── SystemController    # Heartbeat & health check
+│   │   │   │   └── TransactionController # Proses transaksi beras
+│   │   │   ├── AdminController         # CRUD admin
+│   │   │   ├── AuthController          # Login & logout
+│   │   │   ├── DashboardController     # Statistik dashboard
+│   │   │   ├── KioskController         # Tampilan kiosk ATM
+│   │   │   ├── LandingController       # Landing page & cek penerima
+│   │   │   ├── MachineController       # CRUD mesin (web admin)
+│   │   │   ├── MustahikController      # CRUD mustahik + laporan
+│   │   │   └── NewsController          # CRUD berita
+│   │   ├── Middleware/                 # Auth middleware (admin, machine token)
+│   │   ├── Requests/                   # Form Request validasi
+│   │   └── Resources/                  # API Resources
+│   ├── Models/
+│   │   ├── Admin, Machine, MachineToken
+│   │   ├── Mustahik, Transaction, News
+│   │   ├── Province, Regency, District, Village
+│   │   └── ApiLog
+│   └── Services/
+│       ├── ApiLogService               # Logging aktivitas API
+│       ├── RfidValidationService       # Logika validasi e-KTP
+│       ├── TransactionService          # Logika proses transaksi
+│       └── WhatsAppService             # Integrasi notifikasi WA
+│
+├── database/
+│   ├── migrations/                     # Skema tabel database
+│   └── seeders/
+│       ├── AdminSeeder                 # Akun admin default
+│       ├── WilayahSeeder               # Data provinsi s/d kelurahan
+│       └── TransactionSeeder           # Data transaksi uji coba
+│
+├── resources/views/
+│   ├── admin/                          # Halaman web admin
+│   │   ├── mesin/                      # Kelola mesin ATM
+│   │   ├── mustahik/                   # Kelola mustahik & laporan
+│   │   ├── berita/                     # Kelola berita
+│   │   └── admin/                      # Kelola akun admin
+│   ├── kiosk/                          # Tampilan kiosk fullscreen
+│   ├── landing/                        # Landing page publik
+│   ├── layouts/                        # Template layout
+│   └── partials/                       # Komponen reusable
+│
+├── routes/
+│   ├── web.php                         # Route web admin, kiosk, landing
+│   └── api.php                         # Route API untuk Raspberry Pi
+│
+├── raspberry_pi/                       # Script IoT Raspberry Pi
+│   ├── atm_beras_pi.py                 # Controller utama (RFID + Flask + GPIO)
+│   ├── requirements.txt                # Dependencies Python
+│   ├── .env.example                    # Template konfigurasi
+│   └── README.md                       # Panduan setup Pi
+│
+└── README.md
+```
+
+---
+
+## 🔗 Alur Kerja Sistem (System Flow)
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                    ADMIN (Web Browser)                    │
+│  Kelola Mesin → Kelola Mustahik → Monitoring Dashboard   │
+└──────────────────┬───────────────────────────────────────┘
+                   │ HTTP
+                   ▼
+┌──────────────────────────────────────────────────────────┐
+│              SERVER LARAVEL (REST API + Web)              │
+│  • Autentikasi Admin (Session)                           │
+│  • Autentikasi Mesin (Bearer Token)                      │
+│  • CRUD Data (Mesin, Mustahik, Transaksi, Berita)        │
+│  • Validasi e-KTP & Proses Transaksi                     │
+│  • Notifikasi WhatsApp                                   │
+│  • Ekspor Laporan PDF                                    │
+└──────────────────┬───────────────────────────────────────┘
+                   │ REST API
+                   ▼
+┌──────────────────────────────────────────────────────────┐
+│              RASPBERRY PI (Python Controller)             │
+│  ┌────────────┐  ┌──────────┐  ┌───────────────────┐    │
+│  │ e-KTP Reader│→│ Flask    │→│ Motor Dispenser    │    │
+│  │ (RC522/USB) │  │ Server   │  │ (L298N + Motor DC) │    │
+│  └────────────┘  └──────────┘  └───────────────────┘    │
+│        ↕              ↕                                   │
+│  ┌──────────────────────────┐                            │
+│  │ Chromium Kiosk (Browser) │                            │
+│  │ Tampilan layar mesin ATM │                            │
+│  └──────────────────────────┘                            │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Alur Pengambilan Beras:**
+1. Mustahik menempelkan **e-KTP** pada reader
+2. Raspberry Pi membaca UID chip RFID e-KTP → validasi ke server Laravel
+3. Server mengecek identitas, status, dan sisa jatah beras
+4. Jika valid → tampilkan data mustahik di layar kiosk
+5. Mustahik memilih jumlah beras (kg) via numpad
+6. Server memproses transaksi → kurangi jatah → catat riwayat
+7. Raspberry Pi mengaktifkan motor dispenser → beras keluar
+8. Notifikasi WhatsApp dikirim ke mustahik (opsional)
+
+---
+
+## 👨‍💻 Pengembang
+
+| | |
+|---|---|
+| **Nama** | Rafli Prasetya |
+| **Program Studi** | Sarjana Terapan Teknologi Rekayasa Perangkat Lunak |
+| **Institusi** | Politeknik Negeri Banyuwangi |
+
+---
+
+## 📄 Lisensi
+
+Proyek ini dibuat untuk keperluan Tugas Akhir (skripsi) di Politeknik Negeri Banyuwangi. Penggunaan di luar keperluan akademik mohon menghubungi pengembang terlebih dahulu.
